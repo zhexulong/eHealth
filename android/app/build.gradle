@@ -77,6 +77,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "eHealth-${variant.name}.apk"
+        }
+    }
+
     namespace "com.ehealthapp"
     defaultConfig {
         applicationId "com.ehealthapp"
@@ -92,15 +98,30 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            def signingProperties = new Properties()
+            def signingPropertiesFile = rootProject.file("app/signing.properties")
+            if (signingPropertiesFile.exists()) {
+                signingProperties.load(new FileInputStream(signingPropertiesFile))
+                storeFile file(signingProperties['STORE_FILE'])
+                storePassword signingProperties['STORE_PASSWORD']
+                keyAlias signingProperties['KEY_ALIAS']
+                keyPassword signingProperties['KEY_PASSWORD']
+            } else {
+                println 'signing.properties not found'
+                storeFile file('release.keystore')
+                storePassword 'prosumer'
+                keyAlias 'release-key-alias'
+                keyPassword 'prosumer'
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
