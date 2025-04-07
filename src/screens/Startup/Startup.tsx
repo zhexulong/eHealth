@@ -1,4 +1,4 @@
-import type { RootScreenProps } from '@/navigation/types';
+import type { AuthStackScreenProps } from '@/navigation/types';
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -10,10 +10,12 @@ import { Paths } from '@/navigation/paths';
 
 import { AssetByVariant } from '@/components/atoms';
 import { SafeScreen } from '@/components/templates';
+import { useAuth } from '@/hooks/domain/auth/useAuth';
 
-function Startup({ navigation }: RootScreenProps<Paths.Startup>) {
+function Startup({ navigation }: AuthStackScreenProps<'Chat'>) {
   const { fonts, gutters, layout } = useTheme();
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
 
   const { isError, isFetching, isSuccess } = useQuery({
     queryFn: () => {
@@ -24,12 +26,13 @@ function Startup({ navigation }: RootScreenProps<Paths.Startup>) {
 
   useEffect(() => {
     if (isSuccess) {
+      // 当启动检查完成后，根据认证状态导航到相应界面
       navigation.reset({
         index: 0,
-        routes: [{ name: Paths.Example }],
+        routes: [{ name: Paths.Main}],
       });
     }
-  }, [isSuccess, navigation]);
+  }, [isSuccess, isAuthenticated, navigation]);
 
   return (
     <SafeScreen>

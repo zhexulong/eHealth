@@ -1,29 +1,30 @@
-import type { RootStackParamList } from '@/navigation/types';
-
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-import { useTheme } from '@/theme';
-import { Paths } from '@/navigation/paths';
-
-import { Example, Startup } from '@/screens';
+import { MainTabNavigator } from './MainTabNavigator';
+import Startup from '@/screens/Startup/Startup';
+import { Paths } from './paths';
+import type { RootStackParamList } from './types';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-function ApplicationNavigator() {
-  const { navigationTheme, variant } = useTheme();
-
+export function ApplicationNavigator() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer theme={navigationTheme}>
-        <Stack.Navigator key={variant} screenOptions={{ headerShown: false }}>
-          <Stack.Screen component={Startup} name={Paths.Startup} />
-          <Stack.Screen component={Example} name={Paths.Example} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <NavigationContainer>
+      <Stack.Navigator 
+        screenOptions={{
+          headerShown: true,
+        }}
+        initialRouteName={Paths.Startup}
+      >
+        <Stack.Screen 
+          name={Paths.Main}
+          component={MainTabNavigator}
+          options={{
+            headerShown: false
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-export default ApplicationNavigator;
