@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme';
+import { SafeScreen } from '@/components/templates';
+import { MedicalCard } from '@/components/atoms/MedicalCard/MedicalCard';
 
 interface Badge {
   id: string;
@@ -17,8 +19,8 @@ interface RewardItem {
 }
 
 export function ProfileScreen() {
-  const { colors } = useTheme();
-  const [points, setPoints] = useState(150); // 用户当前积分
+  const { colors, fonts, components, layout, gutters } = useTheme();
+  const [points, setPoints] = useState(150);
 
   const badges: Badge[] = [
     { id: '1', title: '服药达人', description: '连续服药30天', icon: '🏆' },
@@ -35,170 +37,83 @@ export function ProfileScreen() {
   const handleExchange = (item: RewardItem) => {
     if (points >= item.points && item.stock > 0) {
       setPoints(points - item.points);
-      // TODO: 处理兑换逻辑
     }
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>病历说明</Text>
-        <View style={styles.medicalCard}>
-          <Text style={styles.medicalTitle}>基本信息</Text>
-          <Text style={styles.medicalText}>姓名：张三</Text>
-          <Text style={styles.medicalText}>年龄：45岁</Text>
-          <Text style={styles.medicalText}>病史：高血压 II 期</Text>
-          <Text style={styles.medicalText}>用药情况：每日服用降压药</Text>
+    <SafeScreen>
+      <ScrollView style={{ backgroundColor: colors.gray50 }}>
+        <View style={gutters.padding_16}>
+          <Text style={[fonts.h2, gutters.marginBottom_16]}>病历说明</Text>
+          <View style={components.card}>
+            <Text style={[fonts.h4, gutters.marginBottom_12]}>基本信息</Text>
+            <Text style={[fonts.body1, gutters.marginBottom_8]}>姓名：张三</Text>
+            <Text style={[fonts.body1, gutters.marginBottom_8]}>年龄：45岁</Text>
+            <Text style={[fonts.body1, gutters.marginBottom_8]}>病史：高血压 II 期</Text>
+            <Text style={[fonts.body1]}>用药情况：每日服用降压药</Text>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>荣誉勋章</Text>
-        <View style={styles.badgesContainer}>
-          {badges.map(badge => (
-            <View key={badge.id} style={styles.badgeCard}>
-              <Text style={styles.badgeIcon}>{badge.icon}</Text>
-              <Text style={styles.badgeTitle}>{badge.title}</Text>
-              <Text style={styles.badgeDescription}>{badge.description}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>积分兑换</Text>
-        <Text style={styles.pointsText}>当前积分：{points}</Text>
-        <View style={styles.rewardsContainer}>
-          {rewardItems.map(item => (
-            <View key={item.id} style={styles.rewardCard}>
-              <Text style={styles.rewardName}>{item.name}</Text>
-              <Text style={styles.rewardPoints}>{item.points} 积分</Text>
-              <Text style={styles.rewardStock}>库存：{item.stock}</Text>
-              <TouchableOpacity
+        <View style={gutters.padding_16}>
+          <Text style={[fonts.h2, gutters.marginBottom_16]}>荣誉勋章</Text>
+          <View style={[layout.row, layout.wrap, { gap: 16 }]}>
+            {badges.map(badge => (
+              <View
+                key={badge.id}
                 style={[
-                  styles.exchangeButton,
+                  components.card,
                   {
-                    backgroundColor:
-                      points >= item.points && item.stock > 0 ? colors.purple500 : '#ccc',
-                  },
+                    width: '47%',
+                    alignItems: 'center'
+                  }
                 ]}
-                onPress={() => handleExchange(item)}
-                disabled={points < item.points || item.stock <= 0}
               >
-                <Text style={styles.exchangeButtonText}>兑换</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+                <Text style={[fonts.h1, gutters.marginBottom_8]}>{badge.icon}</Text>
+                <Text style={[fonts.h5, gutters.marginBottom_4]}>{badge.title}</Text>
+                <Text style={[fonts.caption, { color: colors.gray600, textAlign: 'center' }]}>
+                  {badge.description}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
-      </View>
-    </ScrollView>
+
+        <View style={gutters.padding_16}>
+          <Text style={[fonts.h2, gutters.marginBottom_16]}>积分兑换</Text>
+          <Text style={[fonts.h4, gutters.marginBottom_16]}>当前积分：{points}</Text>
+          <View style={[layout.row, layout.wrap, { gap: 16 }]}>
+            {rewardItems.map(item => (
+              <View
+                key={item.id}
+                style={[
+                  components.card,
+                  {
+                    width: '47%',
+                  }
+                ]}
+              >
+                <Text style={[fonts.h5, gutters.marginBottom_4]}>{item.name}</Text>
+                <Text style={[fonts.body2, { color: colors.gray600 }, gutters.marginBottom_4]}>
+                  {item.points} 积分
+                </Text>
+                <Text style={[fonts.caption, { color: colors.gray500 }, gutters.marginBottom_8]}>
+                  库存：{item.stock}
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    components.buttonPrimary,
+                    points < item.points || item.stock <= 0 ? { backgroundColor: colors.gray400 } : {}
+                  ]}
+                  onPress={() => handleExchange(item)}
+                  disabled={points < item.points || item.stock <= 0}
+                >
+                  <Text style={[fonts.button, { color: colors.white }]}>兑换</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </SafeScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  section: {
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-  },
-  medicalCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    elevation: 2,
-  },
-  medicalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#333',
-  },
-  medicalText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 8,
-  },
-  badgesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  badgeCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    width: '48%',
-    marginBottom: 16,
-    alignItems: 'center',
-    elevation: 2,
-  },
-  badgeIcon: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  badgeTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  badgeDescription: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
-  pointsText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-  },
-  rewardsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  rewardCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    width: '48%',
-    marginBottom: 16,
-    elevation: 2,
-  },
-  rewardName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  rewardPoints: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  rewardStock: {
-    fontSize: 14,
-    color: '#999',
-    marginBottom: 8,
-  },
-  exchangeButton: {
-    borderRadius: 8,
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  exchangeButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

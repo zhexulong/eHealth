@@ -2,10 +2,8 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { 
   View, 
   Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity,
   FlatList,
+  TouchableOpacity,
   Alert
 } from 'react-native';
 import Voice from '@react-native-voice/voice';
@@ -14,6 +12,8 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { useTTS } from '@/hooks/useTTS';
 import { PlayIcon, PauseIcon } from '@/components/atoms/Icons';
 import { PlayProgressBar } from '@/components/atoms/PlayProgressBar';
+import { useTheme } from '@/theme';
+import { SafeScreen } from '@/components/templates';
 import type { Message, ChatState } from './types';
 
 const storage = new MMKV();
@@ -27,6 +27,7 @@ const MOCK_RESPONSES = [
 ];
 
 export function HomeScreen() {
+  const { colors, components, fonts, layout, gutters } = useTheme();
   const hasPermission = usePermissions();
   const { speak, stop, isSpeaking, isInitialized, progress } = useTTS();
   const [state, setState] = useState<ChatState>(() => {
@@ -38,7 +39,7 @@ export function HomeScreen() {
     };
   });
   
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<FlatList>(null);
   const isMounted = useRef(true);
   const voiceInitialized = useRef(false);
 
@@ -49,16 +50,13 @@ export function HomeScreen() {
       if (voiceInitialized.current) return;
       
       try {
-        // 等待语音引擎初始化
         await new Promise<void>((resolve) => setTimeout(resolve, 500));
         
-        // 检查语音识别可用性
         const isAvailable = await Voice.isAvailable();
         if (!isAvailable) {
           throw new Error('语音识别不可用');
         }
 
-        // 设置事件监听器
         Voice.onSpeechStart = () => {
           if (isMounted.current) {
             setState(prev => ({ ...prev, isRecording: true }));
@@ -203,28 +201,37 @@ export function HomeScreen() {
   const renderMessage = ({ item }: { item: Message }) => (
     <TouchableOpacity 
       style={[
-        styles.messageBubble,
-        item.isUser ? styles.userBubble : styles.aiBubble
+        components.card,
+        item.isUser ? {
+          alignSelf: 'flex-end',
+          backgroundColor: colors.primaryLight,
+          borderBottomRightRadius: 4,
+        } : {
+          alignSelf: 'flex-start',
+          backgroundColor: colors.white,
+          borderBottomLeftRadius: 4,
+        },
+        { maxWidth: '80%' }
       ]}
       onPress={() => togglePlayMessage(item)}
       disabled={item.isUser}
     >
-      <Text style={styles.messageText}>{item.text}</Text>
+      <Text style={[fonts.body1, { color: colors.gray800 }]}>{item.text}</Text>
       {!item.isUser && (
-        <View style={styles.messageFooter}>
-          <View style={styles.progressContainer}>
+        <View style={[layout.row, layout.itemsCenter, gutters.marginTop_8]}>
+          <View style={[layout.flex_1, gutters.marginRight_8]}>
             <PlayProgressBar 
               progress={item.isPlaying ? progress : null}
-              color="#666666"
+              color={colors.gray400}
               height={1.5}
             />
           </View>
-          <Text style={styles.timestamp}>{item.timestamp}</Text>
-          <View style={styles.iconContainer}>
+          <Text style={[fonts.caption, { color: colors.gray500 }]}>{item.timestamp}</Text>
+          <View style={[layout.justifyCenter, layout.itemsCenter, gutters.marginLeft_8]}>
             {item.isPlaying ? (
-              <PauseIcon size={16} color="#666666" />
+              <PauseIcon size={16} color={colors.gray500} />
             ) : (
-              <PlayIcon size={16} color="#666666" />
+              <PlayIcon size={16} color={colors.gray500} />
             )}
           </View>
         </View>
@@ -233,124 +240,43 @@ export function HomeScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={state.messages}
-        renderItem={renderMessage}
-        keyExtractor={item => item.id}
-        style={styles.messagesList}
-        contentContainerStyle={styles.messagesContainer}
-        onContentSizeChange={() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }}
-      />
+    <SafeScreen>
+      <View style={[layout.flex_1, { backgroundColor: colors.gray50 }]}>
+        <FlatList
+          data={state.messages}
+          renderItem={renderMessage}
+          keyExtractor={item => item.id}
+          style={layout.flex_1}
+          contentContainerStyle={gutters.padding_16}
+          onContentSizeChange={() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+          }}
+        />
 
-      {state.isThinking && (
-        <View style={styles.thinkingContainer}>
-          <Text style={styles.thinkingText}>正在思考...</Text>
-        </View>
-      )}
+        {state.isThinking && (
+          <View style={[
+            components.card,
+            gutters.margin_16,
+            { alignSelf: 'flex-start', backgroundColor: colors.gray100 }
+          ]}>
+            <Text style={[fonts.body2, { color: colors.gray600 }]}>正在思考...</Text>
+          </View>
+        )}
 
-      <TouchableOpacity
-        style={[
-          styles.recordButton,
-          state.isRecording && styles.recordingButton
-        ]}
-        onPressIn={startRecording}
-        onPressOut={stopRecording}
-      >
-        <Text style={styles.recordButtonText}>
-          {state.isRecording ? '正在录音...' : '按住说话'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={[
+            components.buttonPrimary,
+            gutters.margin_16,
+            state.isRecording && { backgroundColor: colors.error }
+          ]}
+          onPressIn={startRecording}
+          onPressOut={stopRecording}
+        >
+          <Text style={[fonts.button, { color: colors.white }]}>
+            {state.isRecording ? '正在录音...' : '按住说话'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#E8F0FE',
-  },
-  messagesList: {
-    flex: 1,
-  },
-  messagesContainer: {
-    padding: 16,
-  },
-  messageBubble: {
-    maxWidth: '80%',
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 8,
-  },
-  userBubble: {
-    backgroundColor: '#DCF8C6',
-    alignSelf: 'flex-end',
-    borderBottomRightRadius: 4,
-  },
-  aiBubble: {
-    backgroundColor: '#FFFFFF',
-    alignSelf: 'flex-start',
-    borderBottomLeftRadius: 4,
-  },
-  messageText: {
-    fontSize: 16,
-    color: '#000000',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#666666',
-    alignSelf: 'flex-end',
-    marginTop: 4,
-  },
-  thinkingContainer: {
-    padding: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: 16,
-    margin: 16,
-    alignSelf: 'flex-start',
-  },
-  thinkingText: {
-    color: '#666666',
-  },
-  recordButton: {
-    backgroundColor: '#007AFF',
-    padding: 16,
-    margin: 16,
-    borderRadius: 24,
-    alignItems: 'center',
-  },
-  recordingButton: {
-    backgroundColor: '#FF3B30',
-  },
-  recordButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  messageFooter: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  playIcon: {
-    width: 16,
-    height: 16,
-    marginLeft: 8,
-    tintColor: '#666666',
-  },
-  iconContainer: {
-    marginLeft: 8,
-    width: 16,
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressContainer: {
-    flex: 1,
-    marginRight: 8,
-    justifyContent: 'center',
-  },
-});
