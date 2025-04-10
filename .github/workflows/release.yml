@@ -32,6 +32,7 @@ jobs:
       - name: Build Android Release
         run: |
           cd android
+          chmod +x gradlew
           ./gradlew assembleRelease
           ./gradlew bundleRelease
 
