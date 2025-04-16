@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeScreen } from '@/components/templates';
 import { useTheme } from '@/theme';
-import { Button, Card, Dialog, Portal, ProgressBar } from 'react-native-paper';
+import { Button, Card, Dialog, Portal, ProgressBar, Text, useTheme as usePaperTheme } from 'react-native-paper';
+import { ReminderCard } from '@/components/atoms/ReminderCard';
 
 interface MedicationPlan {
   id: string;
@@ -42,6 +43,7 @@ const treatmentPlans: MedicationPlan[] = [
 
 export function TreatmentPlanScreen() {
   const { colors, fonts, components, layout, gutters } = useTheme();
+  const paperTheme = usePaperTheme();
   const [plans, setPlans] = useState<MedicationPlan[]>(treatmentPlans);
   const [progress, setProgress] = useState(50);
   const [visible, setVisible] = useState(false);
@@ -72,9 +74,8 @@ export function TreatmentPlanScreen() {
 
   return (
     <SafeScreen>
-      <View style={[layout.flex_1, { backgroundColor: colors.gray50 }]}>
-        <Text style={[fonts.h1, gutters.margin_16]}>治疗计划</Text>
-
+      <View style={[layout.flex_1]}>
+      
         <View style={[gutters.padding_16]}>
           <Text style={[fonts.body1, gutters.marginBottom_8]}>当前进度：{progress}%</Text>
           <ProgressBar
@@ -82,71 +83,22 @@ export function TreatmentPlanScreen() {
             color={colors.primary}
             style={[{ height: 8, borderRadius: 4 }, gutters.marginBottom_8]}
           />
-          <Text style={[fonts.caption, { color: colors.gray600 }, layout.alignRight]}>
+          <Text style={[fonts.caption,  gutters.marginBottom_8, layout.alignRight]}>
             距离下次奖励还差 {20 - (progress % 20)}%，完成可获得鸡蛋5个
           </Text>
         </View>
 
         <ScrollView style={layout.flex_1}>
           {plans.map((plan, index) => (
-            <TouchableOpacity
+            <ReminderCard
               key={plan.id}
-              onPress={() => handleCardPress(index)}
-              disabled={plan.completed}
-            >
-              <View
-                style={[
-                  components.card,
-                  gutters.marginHorizontal_16,
-                  gutters.marginBottom_12,
-                  plan.completed && { opacity: 0.7, backgroundColor: colors.gray100 },
-                ]}
-              >
-                <View style={[layout.row, layout.justifyBetween, layout.itemsCenter]}>
-                  <View>
-                    <Text
-                      style={[
-                        fonts.h5,
-                        { color: colors.primary },
-                        plan.completed && { color: colors.gray500, textDecorationLine: 'line-through' },
-                      ]}
-                    >
-                      {plan.time}
-                    </Text>
-                    <Text
-                      style={[
-                        fonts.body1,
-                        gutters.marginTop_4,
-                        plan.completed && { color: colors.gray500, textDecorationLine: 'line-through' },
-                      ]}
-                    >
-                      {plan.medicine}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[
-                      fonts.body2,
-                      { color: colors.gray600 },
-                      plan.completed && { color: colors.gray500, textDecorationLine: 'line-through' },
-                    ]}
-                  >
-                    {plan.dosage}
-                  </Text>
-                </View>
-                {plan.completed && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: 0,
-                      right: 0,
-                      height: 1,
-                      backgroundColor: colors.gray400,
-                    }}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
+              title={plan.time}
+              time={`截止时间：${plan.deadline}`}
+              description={`服用${plan.medicine} ${plan.dosage}`}
+              completed={plan.completed}
+              onPress={() => !plan.completed && handleCardPress(index)}
+              style={gutters.marginHorizontal_16}
+            />
           ))}
         </ScrollView>
 

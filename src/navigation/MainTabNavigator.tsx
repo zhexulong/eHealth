@@ -1,40 +1,77 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from './types';
+import { BottomNavigation, Text, useTheme } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { CommunityScreen } from '../screens/Community';
 import { ProfileScreen } from '../screens/Profile';
-import { TreatmentPlanScreen } from '../screens';  // 修改这行
+import { TreatmentPlanScreen } from '../screens';
 import { ChatScreen } from '../screens/Chat';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export function MainTabNavigator() {
+  const theme = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarLabelStyle: {
-          fontSize: 12,
-          marginBottom: 8,
-          paddingBottom: 0,
-          marginTop: -4,
-          position: 'relative',
-          top: -2
+        headerShown: true, // 启用 Header
+        headerTitle: ({ children }) => (
+          <Text style={{ color: theme.colors.onSurface, fontSize: 30}}>
+            {children}
+          </Text>
+        ),
+        tabBarIcon: ({ focused, color }) => {
+          let iconName;
+          switch (route.name) {
+            case 'Chat':
+              iconName = 'chat-processing';
+              break;
+            case 'TreatmentPlan':
+              iconName = 'calendar-check';
+              break;
+            case 'Community':
+              iconName = 'account-group';
+              break;
+            case 'Profile':
+              iconName = 'account';
+              break;
+            default:
+              iconName = 'help';
+          }
+          return <Icon name={iconName} size={24} color={color} />;
         },
-        tabBarStyle: {
-          height: 50,
-          paddingTop: 5,
-          paddingBottom: 5
-        },
-        tabBarItemStyle: {
-          borderRightWidth: 0.5,
-          borderRightColor: '#E0E0E0'
-        },
-        tabBarActiveTintColor: '#333333', // 保持激活时的文字颜色
-        tabBarInactiveTintColor: '#333333', // 保持未激活时的文字颜色
-        tabBarActiveBackgroundColor: '#D5E8FF', // 改成浅蓝色背景
-        tabBarInactiveBackgroundColor: '#FFFFFF', // 未激活时的背景色
-      })}>
+      })}
+      tabBar={({ navigation, state, descriptors, insets }) => (
+        <BottomNavigation.Bar
+          navigationState={state}
+          safeAreaInsets={insets}
+          onTabPress={({ route }) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          }}
+          renderIcon={({ route, focused, color }) => {
+            const { options } = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({ focused, color, size: 24 });
+            }
+            return null;
+          }}
+          getLabelText={({ route }) => {
+            const { options } = descriptors[route.key];
+            return options.title || route.name;
+          }}
+        />
+      )}>
       <Tab.Screen 
         name="Chat" 
         component={ChatScreen}

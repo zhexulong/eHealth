@@ -1,27 +1,48 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Surface, Text, Card, List, FAB, useTheme } from 'react-native-paper';
 import { withRoleAccess } from '@/components/molecules/WithRoleAccess';
 
 function PrescriptionManagementScreen() {
+  const theme = useTheme();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>处方管理</Text>
-      <Text>此页面仅医生可见</Text>
-    </View>
+    <Surface style={styles.container}>
+      <Card style={styles.card}>
+        <Card.Title title="处方管理" subtitle="此页面仅医生可见" />
+        <Card.Content>
+          <List.Section>
+            <List.Subheader>当前处方列表</List.Subheader>
+            <List.Item
+              title="暂无处方记录"
+              left={props => <List.Icon {...props} icon="file-document-outline" />}
+            />
+          </List.Section>
+        </Card.Content>
+      </Card>
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        onPress={() => {}}
+        label="新增处方"
+      />
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+  card: {
+    marginVertical: 8,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
   },
 });
 

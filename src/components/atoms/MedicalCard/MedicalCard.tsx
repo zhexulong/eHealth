@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
-import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/theme';
-import { animations } from '@/theme/animations';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { Card, useTheme, Text } from 'react-native-paper';
 import type { ViewStyle } from 'react-native';
 
 interface MedicalCardProps {
@@ -19,62 +18,49 @@ export const MedicalCard: React.FC<MedicalCardProps> = ({
   onPress,
   style,
 }) => {
-  const { components, fonts, colors } = useTheme();
-  const scale = new Animated.Value(1);
+  const theme = useTheme();
   
   // 获取状态颜色
   const getStatusColor = () => {
     switch (status) {
       case 'warning':
-        return colors.warning;
+        return theme.colors.warning;
       case 'success':
-        return colors.success;
+        return theme.colors.success;
       case 'error':
-        return colors.error;
+        return theme.colors.error;
       default:
-        return colors.primary;
+        return theme.colors.primary;
     }
   };
 
-  // 处理按压动画
-  const handlePressIn = useCallback(() => {
-    animations.pressAnimation(scale).pressIn.start();
-  }, [scale]);
-
-  const handlePressOut = useCallback(() => {
-    animations.pressAnimation(scale).pressOut.start();
-  }, [scale]);
-
   return (
-    <Animated.View
+    <Card
       style={[
-        components.card,
+        styles.card,
         {
-          transform: [{ scale }],
           borderLeftWidth: 4,
           borderLeftColor: getStatusColor(),
         },
         style,
       ]}
+      onPress={onPress}
     >
-      <TouchableOpacity
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        activeOpacity={1}
-      >
-        <View style={styles.container}>
-          <Text style={[fonts.h5, { color: colors.gray800 }]}>{title}</Text>
-          <Text style={[fonts.body2, { color: colors.gray600 }]}>
-            {description}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
+      <Card.Content style={styles.container}>
+        <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>{title}</Text>
+        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+          {description}
+        </Text>
+      </Card.Content>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
+  card: {
+    backgroundColor: 'white',
+    elevation: 2,
+  },
   container: {
     gap: 8,
   },

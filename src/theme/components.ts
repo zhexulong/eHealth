@@ -47,7 +47,7 @@ export default ({ backgrounds, fonts, layout, borders }: ComponentTheme) => {
     
     // 输入框样式
     input: {
-      backgroundColor: backgrounds.gray50.backgroundColor,
+      backgroundColor: backgrounds.white.backgroundColor,
       borderRadius: 8,
       borderWidth: 1,
       borderColor: backgrounds.gray300.backgroundColor,

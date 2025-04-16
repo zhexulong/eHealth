@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { GiftedChat as RNGiftedChat, IMessage } from 'react-native-gifted-chat';
 import { SafeScreen } from '@/components/templates';
 import { useTheme } from '@/theme';
-import { Button, Text } from 'react-native-paper';
+import { IconButton, Text, Surface, useTheme as usePaperTheme } from 'react-native-paper';
 
 const medicalQuestions = [
   "为什么我需要长期吃降压药？",
@@ -21,6 +21,7 @@ const medicalAnswers = [
 
 export function ChatScreen() {
   const { layout } = useTheme();
+  const paperTheme = usePaperTheme();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isRecording, setIsRecording] = useState(false);
 
@@ -80,18 +81,17 @@ export function ChatScreen() {
             renderInputToolbar={() => null}
           />
         </View>
-        <View style={styles.buttonContainer}>
-          <Button
+        <Surface style={styles.buttonContainer} elevation={4}>
+          <IconButton
             mode="contained"
+            size={35}
             style={[styles.voiceButton, isRecording && styles.recording]}
             onPressIn={handleVoiceStart}
             onPressOut={handleVoiceEnd}
             icon="microphone"
-            labelStyle={styles.buttonText}
-          >
-            按住说话
-          </Button>
-        </View>
+            theme={{ colors: { primary: paperTheme.colors.primary } }}
+          />
+        </Surface>
       </View>
     </SafeScreen>
   );
@@ -103,42 +103,27 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 1,
-    paddingBottom: 100, // 为底部按钮预留空间
+    paddingBottom: 120, // 为底部按钮预留空间
   },
   buttonContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: 10,
-    paddingTop: 10,
-    backgroundColor: '#E3F2FD', // 半透明背景
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    paddingVertical: 12,
+    backgroundColor: '#E3F2FD',
     alignItems: 'center',
   },
   voiceButton: {
-    width: 180,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#2196F3',
+    width: 80,
+    height: 80,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    flexDirection: 'row',
-    paddingHorizontal: 15,
+    padding: 0,
+    flexDirection: 'row', 
   },
   recording: {
     backgroundColor: '#63b5f6',
-  },
-  buttonText: {
-    color: '#fff',
-    marginLeft: 8,
-    fontSize: 14,
-    fontWeight: '500',
   },
 })

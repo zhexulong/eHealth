@@ -83,6 +83,11 @@ android {
         }
     }
 
+    rootProject.ext.vectoricons = [
+    iconFontNames: ['MaterialIcons.ttf', 'FontAwesome.ttf', 'MaterialCommunityIcons.ttf'] // 实际使用的字体
+    ]
+    apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
     namespace "com.ehealthapp"
     defaultConfig {
         applicationId "com.ehealthapp"

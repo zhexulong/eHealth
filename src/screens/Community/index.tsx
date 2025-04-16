@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { View, TextInput, FlatList, Alert } from 'react-native';
 import { useTheme } from '@/theme';
 import { SafeScreen } from '@/components/templates';
 import { Ripple } from '@/components/atoms';
+import { ReminderCard } from '@/components/atoms/ReminderCard';
+import { Text, useTheme as usePaperTheme } from 'react-native-paper';
 
 interface Reminder {
   id: string;
@@ -35,6 +37,7 @@ const MOCK_REMINDERS: Reminder[] = [
 
 export function CommunityScreen() {
   const { colors, fonts, components, layout, gutters } = useTheme();
+  const paperTheme = usePaperTheme();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [reminders, setReminders] = useState<Reminder[]>(MOCK_REMINDERS);
 
@@ -62,54 +65,20 @@ export function CommunityScreen() {
   };
 
   const renderReminderItem = ({ item }: { item: Reminder }) => (
-    <TouchableOpacity onPress={() => handleReminderPress(item.id)}>
-      <View style={[
-        components.card,
-        gutters.marginBottom_12,
-        item.completed && { opacity: 0.7, backgroundColor: colors.gray100 }
-      ]}>
-        <View style={[layout.col, { gap: 8 }]}>
-          <View>
-            <Text style={[
-              fonts.h5,
-              { color: colors.primary },
-              item.completed && { color: colors.gray500, textDecorationLine: 'line-through' }
-            ]}>
-              {item.type}提醒
-            </Text>
-            <Text style={[
-              fonts.body2,
-              { color: colors.gray600 },
-              item.completed && { color: colors.gray500, textDecorationLine: 'line-through' }
-            ]}>
-              {item.time}
-            </Text>
-          </View>
-          <Text style={[
-            fonts.body1,
-            { color: colors.gray800 },
-            item.completed && { color: colors.gray500, textDecorationLine: 'line-through' }
-          ]}>
-            提醒{item.user}{item.time}{item.type}
-          </Text>
-        </View>
-        {item.completed && (
-          <View style={{
-            position: 'absolute',
-            top: '50%',
-            left: 0,
-            right: 0,
-            height: 1,
-            backgroundColor: colors.gray400
-          }} />
-        )}
-      </View>
-    </TouchableOpacity>
+    <ReminderCard
+      title={`${item.type}提醒`}
+      time={item.time}
+      description={`提醒${item.user}${item.time}${item.type}`}
+      completed={item.completed}
+      onPress={() => handleReminderPress(item.id)}
+      style={gutters.marginHorizontal_16}
+    />
+
   );
 
   return (
     <SafeScreen>
-      <View style={[layout.flex_1, { backgroundColor: colors.gray50 }]}>
+      <View style={[layout.flex_1, ]}>
         <View style={[
           gutters.padding_16,
           { borderBottomWidth: 1, borderBottomColor: colors.gray200 }
