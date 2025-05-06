@@ -1,76 +1,23 @@
-import React, { useState } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, ScrollView } from 'react-native';
 import { SafeScreen } from '@/components/templates';
 import { useTheme } from '@/theme';
-import { Button, Card, Dialog, Portal, ProgressBar, Text, useTheme as usePaperTheme } from 'react-native-paper';
+import { Button, Dialog, Portal, ProgressBar, Text, useTheme as usePaperTheme } from 'react-native-paper';
 import { ReminderCard } from '@/components/atoms/ReminderCard';
-
-interface MedicationPlan {
-  id: string;
-  time: string;
-  medicine: string;
-  dosage: string;
-  deadline: string;
-  completed: boolean;
-}
-
-const treatmentPlans: MedicationPlan[] = [
-  {
-    id: '1',
-    time: '早上 8:00',
-    medicine: '降压药',
-    dosage: '1片',
-    deadline: '08:30',
-    completed: false,
-  },
-  {
-    id: '2',
-    time: '中午 12:00',
-    medicine: '维生素',
-    dosage: '1粒',
-    deadline: '12:30',
-    completed: true,
-  },
-  {
-    id: '3',
-    time: '晚上 19:00',
-    medicine: '降压药',
-    dosage: '1片',
-    deadline: '19:30',
-    completed: false,
-  },
-];
+import { useTreatmentPlan } from '@/hooks/domain/treatment/useTreatmentPlan';
 
 export function TreatmentPlanScreen() {
-  const { colors, fonts, components, layout, gutters } = useTheme();
+  const { colors, fonts, layout, gutters } = useTheme();
   const paperTheme = usePaperTheme();
-  const [plans, setPlans] = useState<MedicationPlan[]>(treatmentPlans);
-  const [progress, setProgress] = useState(50);
-  const [visible, setVisible] = useState(false);
-  const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
-
-  const handleCardPress = (index: number) => {
-    setSelectedPlanIndex(index);
-    setVisible(true);
-  };
-
-  const handleUpload = () => {
-    if (selectedPlanIndex === null) return;
-
-    setPlans(prevPlans => {
-      const newPlans = [...prevPlans];
-      newPlans[selectedPlanIndex] = {
-        ...newPlans[selectedPlanIndex],
-        completed: true,
-      };
-      return newPlans;
-    });
-
-    setProgress(prev => Math.min(prev + 10, 100));
-    setVisible(false);
-  };
-
-  const rewardEggs = Math.floor(progress / 20); // 每20%进度可以兑换一个鸡蛋
+  const {
+    plans,
+    progress,
+    visible,
+    handleCardPress,
+    handleUpload,
+    handleDismissDialog,
+    rewardEggs, // 虽然未使用，但保留以备将来使用
+  } = useTreatmentPlan();
 
   return (
     <SafeScreen>
@@ -103,7 +50,7 @@ export function TreatmentPlanScreen() {
         </ScrollView>
 
         <Portal>
-          <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+          <Dialog visible={visible} onDismiss={handleDismissDialog}>
             <Dialog.Title>完成用药打卡</Dialog.Title>
             <Dialog.Content>
               <Text style={fonts.body1}>请上传吃药照片以完成打卡</Text>
