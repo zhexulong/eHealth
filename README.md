@@ -16,6 +16,15 @@
 
 - React Native
 - TypeScript
+- UI相关: React Native Paper
+- 实时音视频: Agora
+
+## 功能展示
+
+![chat界面](./assets/chat-screen.png)
+![medical plan界面](./assets/medical-plan-screen.png)
+![community界面](./assets/community-screen.png)
+![profile界面](./assets/profile-screen.png)
 
 ## 免责声明
 
