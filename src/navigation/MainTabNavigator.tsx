@@ -1,13 +1,15 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from './types';
-import { BottomNavigation, Text, useTheme } from 'react-native-paper';
+import { BottomNavigation, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { CommunityScreen } from '../screens/Community';
 import { ProfileScreen } from '../screens/Profile';
 import { TreatmentPlanScreen } from '../screens';
 import { ChatScreen } from '../screens/Chat';
+import { SettingsScreen } from '../screens/Settings';
+import { CustomHeader } from '../components/molecules/CustomHeader';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -18,11 +20,32 @@ export function MainTabNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true, // 启用 Header
-        headerTitle: ({ children }) => (
-          <Text style={{ color: theme.colors.onSurface, fontSize: 30}}>
-            {children}
-          </Text>
-        ),
+        headerTitle: ({ children }) => {
+          // 准备不同页面的朗读内容
+          let screenText = "";
+          switch (route.name) {
+            case 'Chat':
+              screenText = "对话页面，您可以与AI医生交流您的健康问题";
+              break;
+            case 'TreatmentPlan':
+              screenText = "治疗计划页面，查看您的用药提醒和治疗进度";
+              break;
+            case 'Community':
+              screenText = "社区页面，您可以在这里参与健康讨论和获取支持";
+              break;
+            case 'Profile':
+              screenText = "个人信息页面，查看您的健康记录和成就";
+              break;
+            case 'Settings':
+              screenText = "设置页面，您可以在这里调整应用偏好";
+              break;
+            default:
+              screenText = `${children}页面`;
+          }
+          return (
+            <CustomHeader title={children?.toString() || ""} screenText={screenText} />
+          );
+        },
         tabBarIcon: ({ focused, color }) => {
           let iconName;
           switch (route.name) {
@@ -37,6 +60,9 @@ export function MainTabNavigator() {
               break;
             case 'Profile':
               iconName = 'account';
+              break;
+            case 'Settings':
+              iconName = 'cog';
               break;
             default:
               iconName = 'help';
@@ -60,15 +86,43 @@ export function MainTabNavigator() {
             }
           }}
           renderIcon={({ route, focused, color }) => {
-            const { options } = descriptors[route.key];
-            if (options.tabBarIcon) {
-              return options.tabBarIcon({ focused, color, size: 24 });
+            let iconName;
+            switch (route.name) {
+              case 'Chat':
+                iconName = 'chat-processing';
+                break;
+              case 'TreatmentPlan':
+                iconName = 'calendar-check';
+                break;
+              case 'Community':
+                iconName = 'account-group';
+                break;
+              case 'Profile':
+                iconName = 'account';
+                break;
+              case 'Settings':
+                iconName = 'cog';
+                break;
+              default:
+                iconName = 'help';
             }
-            return null;
+            return <Icon name={iconName} size={24} color={color} />;
           }}
           getLabelText={({ route }) => {
-            const { options } = descriptors[route.key];
-            return options.title || route.name;
+            switch (route.name) {
+              case 'Chat':
+                return '对话';
+              case 'TreatmentPlan':
+                return '治疗计划';
+              case 'Community':
+                return '社区';
+              case 'Profile':
+                return '我的';
+              case 'Settings':
+                return '设置';
+              default:
+                return route.name;
+            }
           }}
         />
       )}>
@@ -76,7 +130,7 @@ export function MainTabNavigator() {
         name="Chat" 
         component={ChatScreen}
         options={{
-          title: '医疗助手'
+          title: '对话'
         }}
       />
       <Tab.Screen 
@@ -97,10 +151,14 @@ export function MainTabNavigator() {
         name="Profile" 
         component={ProfileScreen}
         options={{
-          title: '我的',
-          tabBarItemStyle: {
-            borderRightWidth: 0  // 最后一个选项不需要右边框
-          }
+          title: '我的'
+        }}
+      />
+      <Tab.Screen 
+        name="Settings" 
+        component={SettingsScreen}
+        options={{
+          title: '设置'
         }}
       />
     </Tab.Navigator>

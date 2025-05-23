@@ -4,7 +4,8 @@ import { useTheme } from '@/theme';
 import { SafeScreen } from '@/components/templates';
 import { Ripple } from '@/components/atoms';
 import { ReminderCard } from '@/components/atoms/ReminderCard';
-import { Text, useTheme as usePaperTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import { TTSPageAdapter } from '@/components/molecules/TTSPageAdapter';
 
 interface Reminder {
   id: string;
@@ -35,11 +36,12 @@ const MOCK_REMINDERS: Reminder[] = [
   },
 ];
 
-export function CommunityScreen() {
-  const { colors, fonts, components, layout, gutters } = useTheme();
-  const paperTheme = usePaperTheme();
+export function CommunityScreen() {  const { colors, fonts, components, layout, gutters } = useTheme();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [reminders, setReminders] = useState<Reminder[]>(MOCK_REMINDERS);
+
+  // 准备用于朗读的屏幕内容
+  const screenContent = '社区页面，显示亲友提醒列表，您可以添加亲友和查看他们的提醒。';
 
   const handleInvite = () => {
     if (!phoneNumber.trim()) {
@@ -124,6 +126,9 @@ export function CommunityScreen() {
             contentContainerStyle={gutters.padding_16}
           />
         </View>
+
+        {/* 添加页面适配器 */}
+        <TTSPageAdapter screenName="社区" screenContent={screenContent} />
       </View>
     </SafeScreen>
   );

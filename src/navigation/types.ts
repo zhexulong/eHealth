@@ -7,6 +7,7 @@ export type RootStackParamList = {
   [Paths.Startup]: undefined;
   [Paths.Main]: NavigatorScreenParams<MainTabParamList>;
   [Paths.Login]: undefined;
+  [Paths.TTSSettings]: undefined;
 };
 
 export type RootScreenProps<
@@ -29,4 +30,5 @@ export type MainTabParamList = {
   Community: undefined;
   Profile: undefined;
   TreatmentPlan: undefined;
+  Settings: undefined;
 };

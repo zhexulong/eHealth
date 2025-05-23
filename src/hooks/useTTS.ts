@@ -1,10 +1,37 @@
 import { useEffect, useCallback, useState } from 'react';
+import { Platform } from 'react-native';
 import Tts from 'react-native-tts';
+import { useHuaweiTTS } from './useHuaweiTTS';
+import { useTTSContext } from '@/context/TTSContext';
 
 export interface TTSProgressEvent {
   location: number;
   length: number;
 }
+
+// TTS设置接口
+export interface TTSSettings {
+  enabled: boolean;
+  speed: number;
+  volume: number;
+  language: string;
+  autoPlay: boolean; // 是否自动播放重要提示
+  announceScreen: boolean; // 是否播报当前屏幕名称
+  readScreen: boolean; // 是否朗读屏幕内容
+  autoReadAIResponse: boolean; // 是否自动播报AI医生回复
+}
+
+// 默认TTS设置
+export const DEFAULT_TTS_SETTINGS: TTSSettings = {
+  enabled: true,
+  speed: 0.5,
+  volume: 1.0,
+  language: 'zh-CN',
+  autoPlay: false, // 默认关闭自动播放
+  announceScreen: false, // 默认关闭屏幕播报
+  readScreen: false, // 默认关闭屏幕内容朗读
+  autoReadAIResponse: false, // 默认关闭自动播报AI医生回复
+};
 
 export const useTTS = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -12,6 +39,53 @@ export const useTTS = () => {
   const [progress, setProgress] = useState<TTSProgressEvent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [engineReady, setEngineReady] = useState(false);
+  
+  // 使用全局TTS上下文替代本地状态
+  const { settings, updateSettings } = useTTSContext();
+  
+  // 引入华为TTS hook
+  const huaweiTTS = useHuaweiTTS();
+  const [useHuaweiEngine, setUseHuaweiEngine] = useState(false);
+
+  // 保存设置
+  const saveSettings = useCallback(async (newSettings: Partial<TTSSettings>) => {
+    try {
+      // 使用全局上下文的updateSettings方法
+      const success = await updateSettings(newSettings);
+      
+      // 如果使用标准TTS且已初始化，同步更新TTS引擎参数
+      if (success && isInitialized && !useHuaweiEngine && Tts) {
+        try {
+          if (newSettings.speed !== undefined && newSettings.speed !== settings.speed) {
+            await Tts.setDefaultRate(newSettings.speed);
+          }
+          if (newSettings.language !== undefined && newSettings.language !== settings.language) {
+            await Tts.setDefaultLanguage(newSettings.language);
+          }
+        } catch (err) {
+          console.warn('更新TTS引擎参数失败:', err);
+        }
+      }
+      
+      return success;
+    } catch (err) {
+      console.error('保存TTS设置失败:', err);
+      return false;
+    }
+  }, [settings, isInitialized, useHuaweiEngine, updateSettings]);
+
+  // 切换语音播放启用状态
+  const toggleEnabled = useCallback(async () => {
+    const newEnabled = !settings.enabled;
+    
+    // 同步更新华为TTS设置
+    if (huaweiTTS.isHuaweiDevice && huaweiTTS.isInitialized) {
+      await huaweiTTS.saveSettings({ enabled: newEnabled });
+    }
+    
+    const success = await saveSettings({ enabled: newEnabled });
+    return success ? newEnabled : settings.enabled;
+  }, [settings, saveSettings, huaweiTTS]);
 
   useEffect(() => {
     let isMounted = true;
@@ -19,6 +93,16 @@ export const useTTS = () => {
     const MAX_RETRIES = 3;
 
     const initTTS = async () => {
+      // 检测是否应该使用华为引擎
+      if (huaweiTTS.isHuaweiDevice && huaweiTTS.isInitialized) {
+        if (isMounted) {
+          setUseHuaweiEngine(true);
+          setIsInitialized(true);
+          setEngineReady(true);
+        }
+        return;
+      }
+
       try {
         // 确保 Tts 模块已加载
         if (!Tts) {
@@ -44,9 +128,9 @@ export const useTTS = () => {
         }
 
         // 设置 TTS 参数
-        await Tts.setDefaultLanguage('zh-CN');
-        await Tts.setDefaultRate(0.5);
-        await Tts.setDefaultPitch(1.0);
+        await Tts.setDefaultLanguage(settings.language);
+        await Tts.setDefaultRate(settings.speed);
+        // Volume is not directly supported in react-native-tts
         
         // 添加事件监听
         Tts.addEventListener('tts-start', () => {
@@ -80,7 +164,7 @@ export const useTTS = () => {
           setIsInitialized(true);
           setError(null);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('TTS 初始化失败:', err);
         if (isMounted) {
           setError(err instanceof Error ? err.message : '初始化失败');
@@ -111,9 +195,20 @@ export const useTTS = () => {
         }
       }
     };
-  }, []);
+  }, [huaweiTTS.isInitialized, huaweiTTS.isHuaweiDevice, settings]);
 
   const speak = useCallback(async (text: string) => {
+    // 如果TTS功能被禁用，直接返回
+    if (!settings.enabled) {
+      return;
+    }
+
+    // 使用华为TTS引擎
+    if (useHuaweiEngine) {
+      return huaweiTTS.speak(text);
+    }
+
+    // 使用标准TTS引擎
     if (!Tts) {
       console.error('TTS 模块未加载');
       return;
@@ -129,32 +224,42 @@ export const useTTS = () => {
         await Tts.stop();
       }
       await Tts.speak(text);
-    } catch (err) {
+    } catch (err: any) {
       console.error('TTS 播放失败:', err);
       setError(err instanceof Error ? err.message : '播放失败');
     }
-  }, [isInitialized, isSpeaking]);
+  }, [isInitialized, isSpeaking, useHuaweiEngine, huaweiTTS, settings.enabled]);
 
   const stop = useCallback(async () => {
+    // 使用华为TTS引擎
+    if (useHuaweiEngine) {
+      return huaweiTTS.stop();
+    }
+
+    // 使用标准TTS引擎
     if (!Tts || !isInitialized) {
       return;
     }
 
     try {
       await Tts.stop();
-    } catch (err) {
+    } catch (err: any) {
       console.error('TTS 停止失败:', err);
       setError(err instanceof Error ? err.message : '停止失败');
     }
-  }, [isInitialized]);
+  }, [isInitialized, useHuaweiEngine, huaweiTTS]);
 
   return {
     speak,
     stop,
-    isSpeaking,
-    isInitialized,
-    progress,
-    error,
-    engineReady
+    isSpeaking: useHuaweiEngine ? huaweiTTS.isSpeaking : isSpeaking,
+    isInitialized: useHuaweiEngine ? huaweiTTS.isInitialized : isInitialized,
+    progress: useHuaweiEngine ? huaweiTTS.progress : progress,
+    error: useHuaweiEngine ? huaweiTTS.error : error,
+    engineReady: useHuaweiEngine || engineReady,
+    settings,
+    saveSettings,
+    toggleEnabled,
+    isHuaweiEngine: useHuaweiEngine
   };
 };

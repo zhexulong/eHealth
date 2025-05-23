@@ -2,5 +2,6 @@ export const enum Paths {
   Example = 'example',
   Startup = 'Startup',
   Login = 'Login',
-  Main = 'Main'
+  Main = 'Main',
+  TTSSettings = 'TTSSettings'
 }

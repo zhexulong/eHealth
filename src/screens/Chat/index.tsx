@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, Text } from 'react-native';
 import { GiftedChat as RNGiftedChat, IMessage } from 'react-native-gifted-chat';
 import { SafeScreen } from '@/components/templates';
 import { useTheme } from '@/theme';
-import { IconButton, Surface, useTheme as usePaperTheme, Chip } from 'react-native-paper';
+import { IconButton, Surface, useTheme as usePaperTheme, Chip, Button } from 'react-native-paper';
 import { createAgoraRtcEngine } from 'react-native-agora';
 import { usePermissions } from '@/hooks/usePermissions';
 import { AGORA_CONFIG } from '@/config/agora';
+import { useTTS } from '@/hooks/useTTS';
+import { TTSPageAdapter } from '@/components/molecules/TTSPageAdapter';
 
 const medicalQuestions = [
   "为什么我需要长期吃降压药？",
@@ -31,6 +33,8 @@ export function ChatScreen() {
   const [isInChannel, setIsInChannel] = useState(false);
   const [remoteUsers, setRemoteUsers] = useState<number[]>([]);
   const [engine, setEngine] = useState<any>(null);
+  const { speak, stop, isSpeaking, settings } = useTTS();
+  const [lastBotMessage, setLastBotMessage] = useState<string | null>(null);
 
   // 初始化 Agora 引擎
   useEffect(() => {
@@ -120,6 +124,32 @@ export function ChatScreen() {
     };
   }, [hasPermissions]);
 
+  // 自动播报最新医生消息
+  useEffect(() => {
+    if (lastBotMessage && settings.enabled && (settings.autoPlay || settings.autoReadAIResponse)) {
+      // 确保之前的朗读已停止
+      stop();
+      // 添加短暂延迟，确保UI渲染完成
+      setTimeout(() => {
+        // 自动播报医生回复
+        speak(lastBotMessage);
+      }, 300);
+    }
+  }, [lastBotMessage, settings.enabled, settings.autoPlay, settings.autoReadAIResponse, speak, stop]);
+
+  // 处理朗读最新回复
+  const handleReadLatestReply = () => {
+    if (isSpeaking) {
+      stop();
+    } else {
+      if (lastBotMessage) {
+        speak(lastBotMessage);
+      } else {
+        speak("现在还没有消息哦，你有什么需要可以向AI医生求助");
+      }
+    }
+  };
+
   const joinChannel = async () => {
     if (!hasPermissions) {
       Alert.alert('提示', '请先授予麦克风权限');
@@ -202,8 +232,23 @@ export function ChatScreen() {
     };
     
     onSend([userMessage]);
-    setTimeout(() => onSend([botMessage]), 1000);
+    setTimeout(() => {
+      onSend([botMessage]);
+      setLastBotMessage(answer);
+    }, 1000);
   };
+
+  // 用于朗读的当前对话内容
+  const getCurrentChatContent = useCallback(() => {
+    if (messages.length === 0) return "当前没有对话内容";
+    
+    // 最多朗读最近的5条消息
+    const recentMessages = messages.slice(0, 5).reverse();
+    return recentMessages.map(msg => {
+      const speaker = msg.user._id === 1 ? "您" : "AI医生";
+      return `${speaker}说: ${msg.text}`;
+    }).join('. ');
+  }, [messages]);
 
   return (
     <SafeScreen>
@@ -234,16 +279,35 @@ export function ChatScreen() {
           />
         </View>
         <Surface style={styles.buttonContainer} elevation={4}>
-          <IconButton
-            mode="contained"
-            size={35}
-            style={[styles.voiceButton, isRecording && styles.recording]}
-            onPressIn={handleVoiceStart}
-            onPressOut={handleVoiceEnd}
-            icon="microphone"
-            theme={{ colors: { primary: paperTheme.colors.primary } }}
-          />
+          <View style={styles.controlsContainer}>
+            <IconButton
+              mode="contained"
+              size={35}
+              style={[styles.voiceButton, isRecording && styles.recording]}
+              onPressIn={handleVoiceStart}
+              onPressOut={handleVoiceEnd}
+              icon="microphone"
+              theme={{ colors: { primary: paperTheme.colors.primary } }}
+            />
+            {settings.enabled && (
+              <Button
+                mode="contained"
+                onPress={handleReadLatestReply}
+                style={[styles.ttsButton, isSpeaking && styles.ttsSpeakingButton]}
+                icon={isSpeaking ? "stop" : "text-to-speech"}
+              >
+                {isSpeaking ? "停止朗读" : "朗读回复"}
+              </Button>
+            )}
+          </View>
         </Surface>
+
+        {/* 添加页面适配器，支持页面播报 */}
+        <TTSPageAdapter 
+          screenName="对话"
+          screenContent={getCurrentChatContent()}
+          importantMessage={lastBotMessage || undefined}
+        />
       </View>
     </SafeScreen>
   );
@@ -289,6 +353,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#E3F2FD',
     alignItems: 'center',
   },
+  controlsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  ttsButton: {
+    marginLeft: 16,
+    borderRadius: 30,
+    padding: 2,
+  },
+  ttsSpeakingButton: {
+    backgroundColor: '#f44336',
+  },
   voiceButton: {
     width: 80,
     height: 80,
@@ -299,6 +377,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   recording: {
-    backgroundColor: '#63b5f6',
+    backgroundColor: '#f44336',
   },
 })

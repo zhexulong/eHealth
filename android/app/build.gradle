@@ -148,4 +148,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // 添加华为 HMS SDK 依赖
+    implementation 'com.huawei.hms:ml-computer-vision-faceverify:3.11.0.302'
+    implementation 'com.huawei.hms:ml-computer-vision-faceverify-model:3.11.0.302'
 }

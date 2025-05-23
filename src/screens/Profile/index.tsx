@@ -5,6 +5,7 @@ import { MedicalCard } from '@/components/atoms/MedicalCard/MedicalCard';
 import { AchievementBadge } from '@/components/atoms/AchievementBadge';
 import { useTheme } from '@/theme';
 import { SafeScreen } from '@/components/templates';
+import { TTSPageAdapter } from '@/components/molecules/TTSPageAdapter';
 
 interface Badge {
   id: string;
@@ -32,9 +33,11 @@ const rewardItems: RewardItem[] = [
   { id: '3', name: '营养品', points: 200, stock: 3 },
 ];
 
-export function ProfileScreen() {
-  const { colors, fonts, components, layout, gutters } = useTheme();
+export function ProfileScreen() {  const { layout, gutters } = useTheme();
   const [points, setPoints] = useState(150);
+
+  // 准备用于朗读的屏幕内容
+  const screenContent = '我的页面，包含个人病历、健康成就和积分兑换功能。';
 
   const handleExchange = (item: RewardItem) => {
     if (points >= item.points && item.stock > 0) {
@@ -42,9 +45,8 @@ export function ProfileScreen() {
     }
   };
 
-  return (
-    <SafeScreen>
-      <ScrollView style={{ backgroundColor: colors.background }}>
+  return (    <SafeScreen>
+      <ScrollView>
         <View style={gutters.padding_16}>
           <Text variant="headlineMedium" style={gutters.marginBottom_16}>病历说明</Text>
           <MedicalCard
@@ -80,12 +82,11 @@ export function ProfileScreen() {
                   width: '47%',
                 }}
               >
-                <Card.Content>
-                  <Text variant="titleMedium" style={gutters.marginBottom_4}>{item.name}</Text>
-                  <Text variant="bodyMedium" style={gutters.marginBottom_4}>
+                <Card.Content>                  <Text variant="titleMedium" style={{ marginBottom: 4 }}>{item.name}</Text>
+                  <Text variant="bodyMedium" style={{ marginBottom: 4 }}>
                     {item.points} 积分
                   </Text>
-                  <Text variant="bodySmall" style={gutters.marginBottom_8}>
+                  <Text variant="bodySmall" style={{ marginBottom: 8 }}>
                     库存：{item.stock}
                   </Text>
                   <Button
@@ -100,6 +101,9 @@ export function ProfileScreen() {
             ))}
           </View>
         </View>
+
+        {/* 添加页面适配器 */}
+        <TTSPageAdapter screenName="我的" screenContent={screenContent} />
       </ScrollView>
     </SafeScreen>
   );

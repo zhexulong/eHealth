@@ -7,6 +7,7 @@ import { PaperProvider } from 'react-native-paper';
 
 import { ThemeProvider } from '@/theme';
 import { ApplicationNavigator } from '@/navigation/Application';
+import { TTSProvider } from '@/context/TTSContext';
 
 import '@/translations';
 
@@ -29,7 +30,9 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider storage={storage}>
           <PaperProvider>
-            <ApplicationNavigator />
+            <TTSProvider>
+              <ApplicationNavigator />
+            </TTSProvider>
           </PaperProvider>
         </ThemeProvider>
       </QueryClientProvider>
