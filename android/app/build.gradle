@@ -152,4 +152,20 @@ dependencies {
     // 添加华为 HMS SDK 依赖
     implementation 'com.huawei.hms:ml-computer-vision-faceverify:3.11.0.302'
     implementation 'com.huawei.hms:ml-computer-vision-faceverify-model:3.11.0.302'
+    
+    // 强制使用兼容的AndroidX版本解决lStar属性问题
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+}
+
+// 配置解析策略确保依赖版本兼容
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.core:core:1.12.0'
+        force 'androidx.appcompat:appcompat:1.6.1'
+        force 'com.google.android.material:material:1.10.0'
+        force 'androidx.fragment:fragment:1.6.1'
+        force 'androidx.activity:activity:1.8.0'
+    }
 }

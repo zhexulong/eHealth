@@ -16,6 +16,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("com.huawei.agconnect:agcp:1.6.0.300")
     }
 }
 
@@ -24,6 +25,31 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://developer.huawei.com/repo/' }
+    }
+}
+
+// 强制依赖解析策略，解决HMS库版本冲突
+subprojects {
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core:1.12.0'
+            force 'androidx.appcompat:appcompat:1.6.1'
+            force 'com.google.android.material:material:1.10.0'
+        }
+    }
+    
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion 35
+                buildToolsVersion "35.0.0"
+                
+                defaultConfig {
+                    minSdkVersion 24
+                    targetSdkVersion 34
+                }
+            }
+        }
     }
 }
 

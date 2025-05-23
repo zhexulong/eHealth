@@ -11,13 +11,17 @@
 - **智能提醒系统**：结合推送通知实现用药提醒、复诊提醒等功能
 - **家庭协同监督**：支持家属参与患者的治疗过程，提供协同提醒和监督功能
 - **数据分析报告**：通过AI分析用户行为，生成健康建议
+- **适老化支持**：提供无障碍功能，支持语音识别和语音合成，方便老年用户使用
 
 ## 技术栈
 
-- React Native
+- React Native (v0.76.1)
 - TypeScript
-- UI相关: React Native Paper
+- UI组件库: React Native Paper
+- 导航: React Navigation
 - 实时音视频: Agora
+- 存储: MMKV, AsyncStorage
+- 语音功能: React Native TTS, HMS ML(华为语音合成)
 
 ## 功能展示
 
