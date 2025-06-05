@@ -128,7 +128,7 @@ export function CommunityScreen() {  const { colors, fonts, components, layout, 
         </View>
 
         {/* 添加页面适配器 */}
-        <TTSPageAdapter screenName="社区" screenContent={screenContent} />
+        <TTSPageAdapter screenName="协同提醒" screenContent={screenContent} />
       </View>
     </SafeScreen>
   );

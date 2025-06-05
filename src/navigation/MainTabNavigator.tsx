@@ -35,7 +35,7 @@ export function MainTabNavigator() {
               screenText = "治疗计划页面，查看您的用药提醒和治疗进度";
               break;
             case 'Community':
-              screenText = "社区页面，您可以在这里参与健康讨论和获取支持";
+              screenText = "协同提醒页面，您可以在这里参与健康讨论和获取支持";
               break;
             case 'Profile':
               screenText = "个人信息页面，查看您的健康记录和成就";
@@ -119,7 +119,7 @@ export function MainTabNavigator() {
               case 'TreatmentPlan':
                 return '治疗计划';
               case 'Community':
-                return '社区';
+                return '协同提醒';
               case 'Profile':
                 return '我的';
               case 'Settings':
@@ -148,7 +148,7 @@ export function MainTabNavigator() {
         name="Community" 
         component={CommunityScreen}
         options={{
-          title: '社区'
+          title: '协同提醒'
         }}
       />
       <Tab.Screen 

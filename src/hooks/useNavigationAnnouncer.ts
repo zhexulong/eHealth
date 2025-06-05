@@ -29,7 +29,7 @@ export const useNavigationAnnouncer = () => {
       case 'TreatmentPlan':
         return '治疗计划';
       case 'Community':
-        return '社区';
+        return '协同提醒';
       case 'Profile':
         return '我的';
       case 'Settings':

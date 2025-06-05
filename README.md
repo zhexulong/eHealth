@@ -25,10 +25,10 @@
 
 ## 功能展示
 
-![chat界面](./assets/chat-screen.png)
-![medical plan界面](./assets/medical-plan-screen.png)
-![community界面](./assets/community-screen.png)
-![profile界面](./assets/profile-screen.png)
+![chat界面](./assets/chat-screen.jpg)
+![medical plan界面](./assets/medical-plan-screen.jpg)
+![community界面](./assets/community-screen.jpg)
+![profile界面](./assets/profile-screen.jpg)
 
 ## 免责声明
 
