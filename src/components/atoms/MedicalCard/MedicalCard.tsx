@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Card, useTheme, Text } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
+import { useTheme } from '@/theme';
 import type { ViewStyle } from 'react-native';
 
 interface MedicalCardProps {
@@ -18,19 +19,19 @@ export const MedicalCard: React.FC<MedicalCardProps> = ({
   onPress,
   style,
 }) => {
-  const theme = useTheme();
+  const { colors } = useTheme();
   
   // 获取状态颜色
   const getStatusColor = () => {
     switch (status) {
       case 'warning':
-        return theme.colors.warning;
+        return colors.warning;
       case 'success':
-        return theme.colors.success;
+        return colors.success;
       case 'error':
-        return theme.colors.error;
+        return colors.error;
       default:
-        return theme.colors.primary;
+        return colors.primary;
     }
   };
 
@@ -47,8 +48,8 @@ export const MedicalCard: React.FC<MedicalCardProps> = ({
       onPress={onPress}
     >
       <Card.Content style={styles.container}>
-        <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>{title}</Text>
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+        <Text variant="titleLarge" style={{ color: colors.gray900 }}>{title}</Text>
+        <Text variant="bodyMedium" style={{ color: colors.gray600 }}>
           {description}
         </Text>
       </Card.Content>
@@ -58,7 +59,6 @@ export const MedicalCard: React.FC<MedicalCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
     elevation: 2,
   },
   container: {

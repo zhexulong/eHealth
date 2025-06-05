@@ -23,7 +23,9 @@ export const generateBackgrounds = (configuration: UnionConfiguration) => {
  * Static background styles
  * @desc These styles are not generated from configuration, you can add your own
  */
-export const staticBackgroundStyles = {} as const satisfies Record<
+export const staticBackgroundStyles = {
+  // skeleton样式已移至Skeleton组件内部，使用主题颜色
+} as const satisfies Record<
   string,
   ViewStyle
 >;

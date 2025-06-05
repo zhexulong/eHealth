@@ -1,4 +1,4 @@
-import type { AuthStackScreenProps } from '@/navigation/types';
+import type { RootScreenProps } from '@/navigation/types';
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -12,8 +12,8 @@ import { AssetByVariant } from '@/components/atoms';
 import { SafeScreen } from '@/components/templates';
 import { useAuth } from '@/hooks/domain/auth/useAuth';
 
-function Startup({ navigation }: AuthStackScreenProps<'Chat'>) {
-  const { fonts, gutters, layout } = useTheme();
+function Startup({ navigation }: RootScreenProps) {
+  const { fonts, gutters, layout, colors } = useTheme();
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
 
@@ -53,7 +53,7 @@ function Startup({ navigation }: AuthStackScreenProps<'Chat'>) {
           <ActivityIndicator size="large" style={[gutters.marginVertical_24]} />
         )}
         {isError && (
-          <Text style={[fonts.size_16, fonts.red500]}>{t('common_error')}</Text>
+          <Text style={[fonts.size_16, { color: colors.error }]}>{t('common_error')}</Text>
         )}
       </View>
     </SafeScreen>

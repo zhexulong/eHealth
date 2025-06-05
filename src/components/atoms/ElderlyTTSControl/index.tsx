@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Icon } from 'react-native-paper';
 import { useTTS } from '@/hooks/useTTS';
 import { PlayProgressBar } from '@/components/atoms/PlayProgressBar';
+import { useTheme } from '@/theme';
 
 interface ElderlyTTSControlProps {
   /**
@@ -39,6 +40,7 @@ export const ElderlyTTSControl: React.FC<ElderlyTTSControlProps> = ({
   style
 }) => {
   const { speak, stop, isSpeaking, progress, settings } = useTTS();
+  const { colors, backgrounds, fonts } = useTheme();
   const [showHint, setShowHint] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
 
@@ -96,29 +98,40 @@ export const ElderlyTTSControl: React.FC<ElderlyTTSControlProps> = ({
   }
 
   return (
-    <View style={[styles.container, style]}>
-      <TouchableOpacity 
+    <View style={[styles.container, style]}>      <TouchableOpacity 
         onPress={handlePress}
-        style={[styles.button, { padding }]}
+        style={[
+          styles.button, 
+          { 
+            padding,
+            backgroundColor: isSpeaking ? colors.primaryLight : backgrounds.gray100.backgroundColor,
+            borderColor: colors.primary,
+            borderWidth: 2
+          }
+        ]}
         accessibilityLabel={isSpeaking ? "停止朗读" : "开始朗读"}
         accessibilityHint="按下可控制文字朗读功能"
-        accessibilityRole="button"
-      >
-        <Icon 
-          name={isSpeaking ? "stop" : "volume-up"} 
+        accessibilityRole="button"      >        <Icon 
+          source={isSpeaking ? "stop" : "text-to-speech"} 
           size={iconSize} 
-          color="#2196F3" 
+          color={colors.primary} 
         />
-        <Text style={[styles.label, { fontSize }]}>
+        <Text style={[styles.label, { fontSize, color: colors.primary, marginLeft: 8 }]}>
           {isSpeaking ? "停止朗读" : label}
         </Text>
       </TouchableOpacity>
       
       {isSpeaking && <PlayProgressBar progress={progress} />}
-      
-      {showHint && (
-        <View style={styles.hint}>
-          <Text style={styles.hintText}>
+        {showHint && (
+        <View style={[
+          styles.hint,
+          { 
+            backgroundColor: colors.info + '20',
+            borderColor: colors.info,
+            borderWidth: 1
+          }
+        ]}>
+          <Text style={[styles.hintText, { color: fonts.gray700.color }]}>
             点击此按钮可以朗读文字内容
           </Text>
         </View>
@@ -136,17 +149,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: '#F0F8FF',
     minWidth: 200,
     justifyContent: 'center',
   },
   label: {
     fontWeight: 'bold',
     marginLeft: 12,
-    color: '#2196F3',
   },
   hint: {
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
     padding: 12,
     marginTop: 8,
     borderRadius: 8,
@@ -154,6 +164,5 @@ const styles = StyleSheet.create({
   },
   hintText: {
     fontSize: 16,
-    color: '#555',
   }
 });

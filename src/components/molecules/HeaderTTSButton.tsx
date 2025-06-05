@@ -2,10 +2,11 @@ import React from 'react';
 import { 
   TouchableOpacity, 
   StyleSheet, 
-  Text,
-  View
+  Text
 } from 'react-native';
+import { Icon } from 'react-native-paper';
 import { useTTS } from '@/hooks/useTTS';
+import { useTheme } from '@/theme';
 
 interface HeaderTTSButtonProps {
   screenText: string;
@@ -17,6 +18,7 @@ interface HeaderTTSButtonProps {
 export const HeaderTTSButton: React.FC<HeaderTTSButtonProps> = ({
   screenText
 }) => {
+  const { colors } = useTheme();
   const { speak, stop, isSpeaking, settings } = useTTS();
   
   // 处理按钮点击
@@ -27,43 +29,40 @@ export const HeaderTTSButton: React.FC<HeaderTTSButtonProps> = ({
       speak(screenText);
     }
   };
-
   // 如果TTS功能被禁用，则不显示按钮
   if (!settings.enabled || !settings.readScreen) return null;
-  
-  return (
-    <TouchableOpacity
-      style={[styles.button, isSpeaking && styles.activeButton]}
+    return (
+    <TouchableOpacity      style={[
+        styles.button, 
+        { backgroundColor: isSpeaking ? colors.error : colors.primaryLight }
+      ]}
       onPress={handlePress}
-      accessibilityLabel={isSpeaking ? "停止朗读" : "朗读屏幕内容"}
-    >
-      <Text style={[styles.iconText, { color: 'white' }]}>
-        {isSpeaking ? '🔊' : '🔉'}
-      </Text>
-      <Text style={styles.buttonText}>
+      accessibilityLabel={isSpeaking ? "停止朗读" : "朗读屏幕内容"}>      <Icon 
+        source={isSpeaking ? "stop" : "text-to-speech"} 
+        size={28} 
+        color={isSpeaking ? colors.white : colors.primaryDark} 
+      />
+      <Text style={[
+        styles.buttonText, 
+        { color: isSpeaking ? colors.white : colors.primaryDark }
+      ]}>
         {isSpeaking ? "停止" : "朗读内容"}
       </Text>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: 'rgba(33, 150, 243, 0.9)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+const styles = StyleSheet.create({  button: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 10,
-  },
-  activeButton: {
-    backgroundColor: 'rgba(244, 67, 54, 0.9)',
-  },
-  buttonText: {
-    color: 'white',
+  },  buttonText: {
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 18,
+    marginLeft: 8,
   },
   iconText: {
     fontSize: 16,

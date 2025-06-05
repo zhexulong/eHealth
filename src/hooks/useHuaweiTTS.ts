@@ -1,7 +1,9 @@
 import { useEffect, useCallback, useState } from 'react';
 import { NativeModules, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { HMSMLText } from '@hmscore/react-native-hms-ml';
+
+// HMS ML Kit模块应该通过NativeModules访问
+const { HMSMLText } = NativeModules;
 
 // HMS ML Kit TTS设置存储键
 const HMS_TTS_SETTINGS_KEY = '@ehealthApp/hmsTtsSettings';
@@ -223,8 +225,7 @@ export const useHuaweiTTS = () => {
   }, [settings]);
   /**
    * 播放语音
-   */
-  const speak = useCallback(async (text: string, options?: Partial<HuaweiTTSOptions>) => {
+   */  const speak = useCallback(async (text: string, options?: Partial<HuaweiTTSOptions>) => {
     if (!isInitialized || !isHuaweiDevice || !settings.enabled) {
       return false;
     }
@@ -238,15 +239,13 @@ export const useHuaweiTTS = () => {
       setIsSpeaking(true);
       setProgress({ location: 0, length: text.length });
       
-      // 设置TTS参数（如果有自定义参数）
-      if (options && (options.language || options.person || options.speed !== undefined || options.volume !== undefined)) {
-        await HMSMLText.mlTtsAnalyserSetting({
-          language: options.language || settings.language,
-          person: options.person || settings.person,
-          speed: options.speed !== undefined ? options.speed : settings.speed,
-          volume: options.volume !== undefined ? options.volume : settings.volume
-        });
-      }
+      // 每次播放前都更新TTS参数，确保使用当前设置
+      await HMSMLText.mlTtsAnalyserSetting({
+        language: options?.language || settings.language,
+        person: options?.person || settings.person,
+        speed: options?.speed !== undefined ? options.speed : settings.speed,
+        volume: options?.volume !== undefined ? options.volume : settings.volume
+      });
       
       // 调用HMS ML Kit TTS API
       await HMSMLText.mlTtsAnalyserSpeak(text);

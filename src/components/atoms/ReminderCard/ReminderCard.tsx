@@ -32,12 +32,11 @@ export const ReminderCard: React.FC<ReminderCardProps> = ({
       onPress={onPress}
     >
       <Card.Content style={styles.container}>
-        <View>
-          <Text
+        <View>          <Text
             variant="titleLarge"
             style={[
               { color: theme.colors.primary },
-              completed && styles.completedText,
+              completed && [styles.completedText, { color: theme.colors.onSurfaceVariant }],
             ]}
           >
             {title}
@@ -46,7 +45,7 @@ export const ReminderCard: React.FC<ReminderCardProps> = ({
             variant="bodyMedium"
             style={[
               { color: theme.colors.onSurfaceVariant },
-              completed && styles.completedText,
+              completed && [styles.completedText, { color: theme.colors.onSurfaceVariant }],
             ]}
           >
             {time}
@@ -56,13 +55,12 @@ export const ReminderCard: React.FC<ReminderCardProps> = ({
           variant="bodyLarge"
           style={[
             { color: theme.colors.onSurface },
-            completed && styles.completedText,
+            completed && [styles.completedText, { color: theme.colors.onSurfaceVariant }],
           ]}
         >
           {description}
-        </Text>
-        {completed && (
-          <View style={styles.completedLine} />
+        </Text>        {completed && (
+          <View style={[styles.completedLine, { backgroundColor: theme.colors.onSurfaceVariant }]} />
         )}
       </Card.Content>
     </Card>
@@ -71,7 +69,6 @@ export const ReminderCard: React.FC<ReminderCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
     elevation: 2,
     marginBottom: 12,
   },
@@ -79,7 +76,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   completedText: {
-    color: 'gray',
     textDecorationLine: 'line-through',
   },
   completedLine: {
@@ -88,6 +84,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: 'gray',
   },
 });

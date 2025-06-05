@@ -1,14 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, StyleSheet, Alert, Text } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { GiftedChat as RNGiftedChat, IMessage } from 'react-native-gifted-chat';
 import { SafeScreen } from '@/components/templates';
 import { useTheme } from '@/theme';
-import { IconButton, Surface, useTheme as usePaperTheme, Chip, Button } from 'react-native-paper';
+import { IconButton, Surface, Chip, Button, Icon } from 'react-native-paper';
 import { createAgoraRtcEngine } from 'react-native-agora';
 import { usePermissions } from '@/hooks/usePermissions';
 import { AGORA_CONFIG } from '@/config/agora';
 import { useTTS } from '@/hooks/useTTS';
-import { TTSPageAdapter } from '@/components/molecules/TTSPageAdapter';
 
 const medicalQuestions = [
   "为什么我需要长期吃降压药？",
@@ -25,8 +24,7 @@ const medicalAnswers = [
 ];
 
 export function ChatScreen() {
-  const { layout } = useTheme();
-  const paperTheme = usePaperTheme();
+  const theme = useTheme();
   const hasPermissions = usePermissions();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -35,6 +33,7 @@ export function ChatScreen() {
   const [engine, setEngine] = useState<any>(null);
   const { speak, stop, isSpeaking, settings } = useTTS();
   const [lastBotMessage, setLastBotMessage] = useState<string | null>(null);
+  const [isManualReading, setIsManualReading] = useState(false); // 标识是否为手动朗读
 
   // 初始化 Agora 引擎
   useEffect(() => {
@@ -126,29 +125,58 @@ export function ChatScreen() {
 
   // 自动播报最新医生消息
   useEffect(() => {
-    if (lastBotMessage && settings.enabled && (settings.autoPlay || settings.autoReadAIResponse)) {
-      // 确保之前的朗读已停止
-      stop();
-      // 添加短暂延迟，确保UI渲染完成
-      setTimeout(() => {
-        // 自动播报医生回复
-        speak(lastBotMessage);
-      }, 300);
+    // 只有在非手动朗读状态下且TTS未在运行时才执行自动播报
+    if (lastBotMessage && 
+        settings.enabled && 
+        (settings.autoPlay || settings.autoReadAIResponse) && 
+        !isManualReading && 
+        !isSpeaking) {
+      // 使用较短的延迟，避免与手动朗读冲突
+      const autoPlayTimer = setTimeout(() => {
+        // 再次检查状态，防止状态竞争
+        if (!isManualReading && !isSpeaking) {
+          speak(lastBotMessage).catch(error => {
+            console.error('自动播报失败:', error);
+          });
+        }
+      }, 100);
+      
+      return () => clearTimeout(autoPlayTimer);
     }
-  }, [lastBotMessage, settings.enabled, settings.autoPlay, settings.autoReadAIResponse, speak, stop]);
+  }, [lastBotMessage, settings.enabled, settings.autoPlay, settings.autoReadAIResponse, speak, isManualReading, isSpeaking]);
+
+  // 重置手动朗读状态
+  useEffect(() => {
+    if (!isSpeaking && isManualReading) {
+      setIsManualReading(false);
+    }
+  }, [isSpeaking, isManualReading]);
 
   // 处理朗读最新回复
-  const handleReadLatestReply = () => {
+  const handleReadLatestReply = useCallback(async () => {
     if (isSpeaking) {
-      stop();
+      // 如果正在播放，停止播放
+      try {
+        await stop();
+        setIsManualReading(false);
+      } catch (error) {
+        console.error('停止TTS播放失败:', error);
+        setIsManualReading(false);
+      }
     } else {
-      if (lastBotMessage) {
-        speak(lastBotMessage);
-      } else {
-        speak("现在还没有消息哦，你有什么需要可以向AI医生求助");
+      // 开始手动朗读
+      setIsManualReading(true);
+      
+      const textToSpeak = lastBotMessage || "现在还没有消息哦，你有什么需要可以向AI医生求助";
+      
+      try {
+        await speak(textToSpeak);
+      } catch (error) {
+        console.error('TTS播放失败:', error);
+        setIsManualReading(false);
       }
     }
-  };
+  }, [isSpeaking, lastBotMessage, speak, stop]);
 
   const joinChannel = async () => {
     if (!hasPermissions) {
@@ -238,31 +266,23 @@ export function ChatScreen() {
     }, 1000);
   };
 
-  // 用于朗读的当前对话内容
-  const getCurrentChatContent = useCallback(() => {
-    if (messages.length === 0) return "当前没有对话内容";
-    
-    // 最多朗读最近的5条消息
-    const recentMessages = messages.slice(0, 5).reverse();
-    return recentMessages.map(msg => {
-      const speaker = msg.user._id === 1 ? "您" : "AI医生";
-      return `${speaker}说: ${msg.text}`;
-    }).join('. ');
-  }, [messages]);
-
   return (
     <SafeScreen>
-      <View style={[layout.flex_1, styles.container]}>
-        <Surface style={styles.header} elevation={2}>
+      <View style={[theme.layout.flex_1, styles.container, { backgroundColor: theme.backgrounds.gray100.backgroundColor }]}>
+        <Surface style={[styles.header, { backgroundColor: theme.backgrounds.gray50.backgroundColor }]} elevation={2}>
           <IconButton
-            mode="contained"
+            mode="outlined"
             icon={isInChannel ? "phone-off" : "phone"}
             onPress={isInChannel ? leaveChannel : joinChannel}
-            style={[styles.channelButton, isInChannel && styles.leaveButton]}
+            style={[
+              styles.channelButton, 
+              { backgroundColor: theme.backgrounds.gray50.backgroundColor }
+            ]}
+            iconColor={isInChannel ? theme.colors.error : theme.colors.success}
           />
           <View style={styles.usersContainer}>
             {remoteUsers.map(uid => (
-              <Chip key={uid} style={styles.userChip}>
+              <Chip key={uid} style={[styles.userChip, { backgroundColor: theme.backgrounds.gray100.backgroundColor }]}>
                 用户 {uid}
               </Chip>
             ))}
@@ -278,36 +298,43 @@ export function ChatScreen() {
             renderInputToolbar={() => null}
           />
         </View>
-        <Surface style={styles.buttonContainer} elevation={4}>
+        <Surface style={[styles.buttonContainer, { backgroundColor: theme.backgrounds.gray100.backgroundColor }]} elevation={4}>
           <View style={styles.controlsContainer}>
             <IconButton
               mode="contained"
               size={35}
-              style={[styles.voiceButton, isRecording && styles.recording]}
+              style={[
+                styles.voiceButton, 
+                { backgroundColor: isRecording ? theme.colors.error : theme.colors.primaryLight }
+              ]}
               onPressIn={handleVoiceStart}
               onPressOut={handleVoiceEnd}
               icon="microphone"
-              theme={{ colors: { primary: paperTheme.colors.primary } }}
+              iconColor={isRecording ? theme.colors.white : theme.colors.primaryDark}
             />
             {settings.enabled && (
               <Button
                 mode="contained"
                 onPress={handleReadLatestReply}
-                style={[styles.ttsButton, isSpeaking && styles.ttsSpeakingButton]}
-                icon={isSpeaking ? "stop" : "text-to-speech"}
+                style={[
+                  styles.ttsButton, 
+                  { backgroundColor: isSpeaking ? theme.colors.error : theme.colors.primaryLight }
+                ]}
+                icon={({ size, color }) => (
+                  <Icon 
+                    source={isSpeaking ? "stop" : "text-to-speech"} 
+                    size={28} 
+                    color={isSpeaking ? theme.colors.white : theme.colors.primaryDark} 
+                  />
+                )}
+                contentStyle={styles.ttsButtonContent}
+                labelStyle={[styles.ttsButtonLabel, { color: isSpeaking ? theme.colors.white : theme.colors.primaryDark }]}
               >
                 {isSpeaking ? "停止朗读" : "朗读回复"}
               </Button>
             )}
           </View>
         </Surface>
-
-        {/* 添加页面适配器，支持页面播报 */}
-        <TTSPageAdapter 
-          screenName="对话"
-          screenContent={getCurrentChatContent()}
-          importantMessage={lastBotMessage || undefined}
-        />
       </View>
     </SafeScreen>
   );
@@ -315,20 +342,20 @@ export function ChatScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#E3F2FD',
+    // backgroundColor will be set by inline styles
   },
   header: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: '#fff',
+    // backgroundColor will be set by inline styles
     alignItems: 'center',
   },
   channelButton: {
     marginRight: 16,
-    backgroundColor: '#4CAF50',
+    // backgroundColor will be set by inline styles
   },
   leaveButton: {
-    backgroundColor: '#f44336',
+    // backgroundColor will be set by inline styles
   },
   usersContainer: {
     flexDirection: 'row',
@@ -338,7 +365,7 @@ const styles = StyleSheet.create({
   userChip: {
     marginRight: 8,
     marginBottom: 8,
-    backgroundColor: '#E8F5E9',
+    // backgroundColor will be set by inline styles
   },
   chatContainer: {
     flex: 1,
@@ -350,7 +377,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingVertical: 12,
-    backgroundColor: '#E3F2FD',
+    // backgroundColor will be set by inline styles
     alignItems: 'center',
   },
   controlsContainer: {
@@ -364,8 +391,16 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 2,
   },
+  ttsButtonContent: {
+    height: 50,
+    paddingHorizontal: 16,
+  },
+  ttsButtonLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   ttsSpeakingButton: {
-    backgroundColor: '#f44336',
+    // backgroundColor will be set by inline styles
   },
   voiceButton: {
     width: 80,
@@ -377,6 +412,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   recording: {
-    backgroundColor: '#f44336',
+    // backgroundColor will be set by inline styles
   },
 })

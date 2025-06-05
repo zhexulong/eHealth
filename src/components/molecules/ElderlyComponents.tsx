@@ -6,15 +6,25 @@ import {
   TouchableOpacity, 
   Alert 
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTTS } from '../../hooks/useTTS';
 import { ElderlyTTSControl } from '../../components/molecules/ElderlyTTSControl';
+import { useTheme } from '@/theme';
+
+// 定义组件属性接口
+interface ElderlyActionButtonProps {
+  title: string;
+  description?: string;
+  icon?: string;
+  onPress?: () => void;
+  variant?: 'primary' | 'secondary' | 'warning' | 'danger';
+  isImportant?: boolean;
+}
 
 /**
  * 适老化重要操作组件
  * 自动为重要操作添加语音播报功能
  */
-export const ElderlyActionButton = ({ 
+export const ElderlyActionButton: React.FC<ElderlyActionButtonProps> = ({ 
   title, 
   description, 
   icon, 
@@ -23,6 +33,7 @@ export const ElderlyActionButton = ({
   isImportant = false
 }) => {
   const { speak, settings } = useTTS();
+  const { colors, backgrounds, fonts } = useTheme();
   
   const handlePress = () => {
     // 如果是重要操作且启用了自动播报，播放操作描述
@@ -40,43 +51,43 @@ export const ElderlyActionButton = ({
   const getButtonStyle = () => {
     switch (variant) {
       case 'secondary':
-        return styles.buttonSecondary;
+        return { backgroundColor: backgrounds.gray100.backgroundColor, borderWidth: 1, borderColor: colors.gray300 };
       case 'warning':
-        return styles.buttonWarning;
+        return { backgroundColor: colors.warning };
       case 'danger':
-        return styles.buttonDanger;
+        return { backgroundColor: colors.error };
       default:
-        return styles.buttonPrimary;
+        return { backgroundColor: colors.primary };
     }
   };
   
   const getTextStyle = () => {
     switch (variant) {
       case 'secondary':
-        return styles.textSecondary;
-      case 'warning':
-        return styles.textWarning;
-      case 'danger':
-        return styles.textDanger;
+        return { color: fonts.gray800.color };
       default:
-        return styles.textPrimary;
+        return { color: colors.white };
     }
   };
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={[styles.button, getButtonStyle()]}
         onPress={handlePress}
         activeOpacity={0.8}
-      >
-        {icon && <Icon name={icon} size={24} style={[styles.icon, getTextStyle()]} />}
+      >        {icon && (
+          <View style={styles.icon}>
+            <Text style={[{ fontSize: 20 }, getTextStyle()]}>
+              {getIconText(icon)}
+            </Text>
+          </View>
+        )}
         <Text style={[styles.title, getTextStyle()]}>{title}</Text>
       </TouchableOpacity>
       
       {description && (
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.description}>{description}</Text>
+        <View style={[styles.descriptionContainer, { backgroundColor: backgrounds.gray50.backgroundColor }]}>
+          <Text style={[styles.description, { color: fonts.gray600.color }]}>{description}</Text>
           
           {isImportant && (
             <ElderlyTTSControl 
@@ -86,10 +97,29 @@ export const ElderlyActionButton = ({
               autoPlay={false}
             />
           )}
-        </View>
-      )}
+        </View>      )}
     </View>
   );
+};
+
+// 将icon名称转换为文字图标的辅助函数
+const getIconText = (iconName: string) => {
+  const iconMap: { [key: string]: string } = {
+    'home': '首页',
+    'settings': '设置',
+    'person': '个人',  
+    'phone': '电话',
+    'email': '邮件',
+    'edit': '编辑',
+    'delete': '删除',
+    'add': '添加',
+    'search': '搜索',
+    'check': '确认',
+    'warning': '警告',
+    'error': '错误',
+    'info': '信息'
+  };
+  return iconMap[iconName] || '•';
 };
 
 /**
@@ -97,7 +127,7 @@ export const ElderlyActionButton = ({
  * 重要操作会自动朗读确认信息
  */
 export const ElderlyConfirmDialog = {
-  show: (title, message, onConfirm, onCancel) => {
+  show: (title: string, message: string, onConfirm?: () => void, onCancel?: () => void) => {
     const { speak, settings } = useTTS();
     
     // 如果启用了自动播报，播放确认信息
@@ -121,11 +151,20 @@ export const ElderlyConfirmDialog = {
   },
 };
 
+// ElderlyNotification 组件属性接口
+interface ElderlyNotificationProps {
+  title: string;
+  message: string;
+  type?: 'info' | 'success' | 'warning' | 'error';
+  isImportant?: boolean;
+  autoPlay?: boolean;
+}
+
 /**
  * 适老化提示信息组件
  * 自动为重要提示添加语音播报功能
  */
-export const ElderlyNotification = ({ 
+export const ElderlyNotification: React.FC<ElderlyNotificationProps> = ({ 
   title, 
   message, 
   type = 'info',
@@ -133,18 +172,18 @@ export const ElderlyNotification = ({
   autoPlay = false
 }) => {
   const { speak, settings } = useTTS();
-  
-  // 根据类型获取图标
-  const getIconName = () => {
+  const { colors, backgrounds, fonts } = useTheme();
+    // 根据类型获取图标
+  const getIconText = () => {
     switch (type) {
       case 'success':
-        return 'check-circle';
+        return '成功';
       case 'warning':
-        return 'warning';
+        return '警告';
       case 'error':
-        return 'error';
+        return '错误';
       default:
-        return 'info';
+        return '信息';
     }
   };
   
@@ -152,13 +191,25 @@ export const ElderlyNotification = ({
   const getContainerStyle = () => {
     switch (type) {
       case 'success':
-        return styles.notificationSuccess;
+        return { 
+          backgroundColor: colors.success + '20', 
+          borderLeftColor: colors.success 
+        };
       case 'warning':
-        return styles.notificationWarning;
+        return { 
+          backgroundColor: colors.warning + '20', 
+          borderLeftColor: colors.warning 
+        };
       case 'error':
-        return styles.notificationError;
+        return { 
+          backgroundColor: colors.error + '20', 
+          borderLeftColor: colors.error 
+        };
       default:
-        return styles.notificationInfo;
+        return { 
+          backgroundColor: colors.info + '20', 
+          borderLeftColor: colors.info 
+        };
     }
   };
   
@@ -173,15 +224,17 @@ export const ElderlyNotification = ({
 
   return (
     <View style={[styles.notificationContainer, getContainerStyle()]}>
-      <View style={styles.notificationHeader}>
-        <Icon name={getIconName()} size={24} color="#fff" />
-        <Text style={styles.notificationTitle}>{title}</Text>
+      <View style={[styles.notificationHeader, { backgroundColor: backgrounds.gray100.backgroundColor }]}>
+        <Text style={[{ fontSize: 24, marginRight: 8 }, { color: fonts.gray800.color }]}>
+          {getIconText()}
+        </Text>
+        <Text style={[styles.notificationTitle, { color: fonts.gray800.color }]}>{title}</Text>
       </View>
       
-      <Text style={styles.notificationMessage}>{message}</Text>
+      <Text style={[styles.notificationMessage, { color: fonts.gray700.color }]}>{message}</Text>
       
       {isImportant && (
-        <View style={styles.notificationControls}>
+        <View style={[styles.notificationControls, { backgroundColor: backgrounds.gray50.backgroundColor }]}>
           <ElderlyTTSControl
             text={`${title}。${message}`}
             label="朗读此提示"
@@ -206,20 +259,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     elevation: 2,
   },
-  buttonPrimary: {
-    backgroundColor: '#2196F3',
-  },
-  buttonSecondary: {
-    backgroundColor: '#f0f0f0',
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  buttonWarning: {
-    backgroundColor: '#ff9800',
-  },
-  buttonDanger: {
-    backgroundColor: '#f44336',
-  },
   icon: {
     marginRight: 8,
   },
@@ -227,73 +266,36 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  textPrimary: {
-    color: '#fff',
-  },
-  textSecondary: {
-    color: '#333',
-  },
-  textWarning: {
-    color: '#fff',
-  },
-  textDanger: {
-    color: '#fff',
-  },
   descriptionContainer: {
     marginTop: 8,
     padding: 12,
-    backgroundColor: '#f9f9f9',
     borderRadius: 8,
   },
   description: {
     fontSize: 16,
-    color: '#555',
   },
   notificationContainer: {
     marginVertical: 12,
     borderRadius: 8,
     overflow: 'hidden',
-  },
-  notificationInfo: {
-    backgroundColor: '#e3f2fd',
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
-  },
-  notificationSuccess: {
-    backgroundColor: '#e8f5e9',
-    borderLeftWidth: 4,
-    borderLeftColor: '#4caf50',
-  },
-  notificationWarning: {
-    backgroundColor: '#fff3e0',
-    borderLeftWidth: 4,
-    borderLeftColor: '#ff9800',
-  },
-  notificationError: {
-    backgroundColor: '#ffebee',
-    borderLeftWidth: 4,
-    borderLeftColor: '#f44336',
   },
   notificationHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(0,0,0,0.05)',
   },
   notificationTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 8,
-    color: '#333',
   },
   notificationMessage: {
     fontSize: 16,
-    color: '#333',
     padding: 16,
   },
   notificationControls: {
     padding: 8,
-    backgroundColor: 'rgba(0,0,0,0.02)',
     alignItems: 'center',
   },
 });

@@ -12,12 +12,14 @@ import {
   ElderlyConfirmDialog
 } from '../../components/molecules/ElderlyComponents';
 import { ElderlyTTSControl } from '../../components/molecules/ElderlyTTSControl';
+import { useTheme } from '@/theme';
 
 /**
  * 适老化示例屏幕
  * 展示如何在关键操作中集成语音播报功能
  */
 export const ElderlyDemoScreen = () => {
+  const theme = useTheme();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showWarningMessage, setShowWarningMessage] = useState(false);
   
@@ -43,19 +45,18 @@ export const ElderlyDemoScreen = () => {
     
     这些措施有助于稳定您的血压，减少并发症风险。
   `.trim();
-
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.backgrounds.gray50.backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.headerTitle}>适老化功能示例</Text>
+        <Text style={[styles.headerTitle, { color: theme.fonts.gray800.color }]}>适老化功能示例</Text>
         
         {/* 药物提醒部分 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>今日用药提醒</Text>
+          <Text style={[styles.sectionTitle, { color: theme.fonts.gray800.color, borderLeftColor: theme.colors.primary }]}>今日用药提醒</Text>
           
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>您有3项用药提醒</Text>
-            <Text style={styles.cardContent}>{medicationReminder}</Text>
+          <View style={[styles.card, { backgroundColor: theme.backgrounds.white.backgroundColor }]}>
+            <Text style={[styles.cardTitle, { color: theme.fonts.gray800.color }]}>您有3项用药提醒</Text>
+            <Text style={[styles.cardContent, { color: theme.fonts.gray600.color }]}>{medicationReminder}</Text>
             
             <ElderlyTTSControl
               text={`今日用药提醒。${medicationReminder}`}
@@ -91,14 +92,13 @@ export const ElderlyDemoScreen = () => {
             />
           )}
         </View>
-        
-        {/* 健康建议部分 */}
+          {/* 健康建议部分 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>健康建议</Text>
+          <Text style={[styles.sectionTitle, { color: theme.fonts.gray800.color, borderLeftColor: theme.colors.primary }]}>健康建议</Text>
           
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>血压管理建议</Text>
-            <Text style={styles.cardContent}>{healthAdvice}</Text>
+          <View style={[styles.card, { backgroundColor: theme.backgrounds.white.backgroundColor }]}>
+            <Text style={[styles.cardTitle, { color: theme.fonts.gray800.color }]}>血压管理建议</Text>
+            <Text style={[styles.cardContent, { color: theme.fonts.gray600.color }]}>{healthAdvice}</Text>
             
             <ElderlyTTSControl
               text={`血压管理建议。${healthAdvice}`}
@@ -168,7 +168,7 @@ export const ElderlyDemoScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    // backgroundColor will be set by inline styles
   },
   scrollContent: {
     padding: 16,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    // color will be set by inline styles
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -186,18 +186,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    // color will be set by inline styles
     marginBottom: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
+    // borderLeftColor will be set by inline styles
     paddingLeft: 8,
   },
   card: {
-    backgroundColor: '#fff',
+    // backgroundColor will be set by inline styles
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: "#000", // 阴影颜色保持不变，通常不需要主题适配
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -206,12 +206,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    // color will be set by inline styles
     marginBottom: 12,
   },
   cardContent: {
     fontSize: 16,
-    color: '#555',
+    // color will be set by inline styles
     lineHeight: 24,
     marginBottom: 16,
   },

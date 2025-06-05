@@ -2,12 +2,14 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { SafeScreen } from '@/components/templates';
 import { useTheme } from '@/theme';
-import { Button, Dialog, Portal, ProgressBar, Text } from 'react-native-paper';
+import { Button, Dialog, Portal, Text } from 'react-native-paper';
 import { ReminderCard } from '@/components/atoms/ReminderCard';
+import { ProgressFace } from '@/components/atoms/ProgressFace';
 import { useTreatmentPlan } from '@/hooks/domain/treatment/useTreatmentPlan';
 import { TTSPageAdapter } from '@/components/molecules/TTSPageAdapter';
 
-export function TreatmentPlanScreen() {  const { colors, fonts, layout, gutters } = useTheme();
+export function TreatmentPlanScreen() {
+  const { fonts, layout, gutters } = useTheme();
   const {
     plans,
     progress,
@@ -15,7 +17,7 @@ export function TreatmentPlanScreen() {  const { colors, fonts, layout, gutters 
     handleCardPress,
     handleUpload,
     handleDismissDialog,
-    rewardEggs, // 虽然未使用，但保留以备将来使用
+    // rewardEggs, // 保留以备将来使用，暂时注释避免 lint 警告
   } = useTreatmentPlan();
 
   // 准备用于朗读的屏幕内容
@@ -24,16 +26,10 @@ export function TreatmentPlanScreen() {  const { colors, fonts, layout, gutters 
   return (
     <SafeScreen>
       <View style={[layout.flex_1]}>
-      
-        <View style={[gutters.padding_16]}>          <Text style={[fonts.body1, { marginBottom: 8 }]}>当前进度：{progress}%</Text>
-          <ProgressBar
-            progress={progress / 100}
-            color={colors.primary}
-            style={[{ height: 8, borderRadius: 4, marginBottom: 8 }]}
-          />
-          <Text style={[fonts.caption, { marginBottom: 8, textAlign: 'right' }]}>
-            距离下次奖励还差 {20 - (progress % 20)}%，完成可获得鸡蛋5个
-          </Text>
+        <View style={[gutters.padding_32]}>          
+          <View style={[layout.itemsCenter, { marginBottom: 16 }]}>
+            <ProgressFace progress={progress} size={160} />
+          </View>
         </View>
 
         <ScrollView style={layout.flex_1}>
@@ -61,8 +57,8 @@ export function TreatmentPlanScreen() {  const { colors, fonts, layout, gutters 
               <Text style={fonts.body1}>您已完成当前服药任务，请选择：</Text>
             </Dialog.Content>
             <Dialog.Actions>
+              <Button mode="contained" onPress={handleDismissDialog}>取消</Button>
               <Button onPress={handleUpload}>上传照片</Button>
-              <Button mode="contained" onPress={handleDismissDialog}>完成记录</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>

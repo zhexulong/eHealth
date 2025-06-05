@@ -1,8 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from './types';
-import { BottomNavigation, useTheme } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { BottomNavigation, Icon } from 'react-native-paper';
+import { useTheme } from '@/theme';
 
 import { CommunityScreen } from '../screens/Community';
 import { ProfileScreen } from '../screens/Profile';
@@ -14,12 +14,16 @@ import { CustomHeader } from '../components/molecules/CustomHeader';
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export function MainTabNavigator() {
-  const theme = useTheme();
+  const { navigationTheme } = useTheme();
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true, // 启用 Header
+        headerStyle: {
+          backgroundColor: navigationTheme.colors.card,
+        },
+        headerTintColor: navigationTheme.colors.text,
         headerTitle: ({ children }) => {
           // 准备不同页面的朗读内容
           let screenText = "";
@@ -50,7 +54,7 @@ export function MainTabNavigator() {
           let iconName;
           switch (route.name) {
             case 'Chat':
-              iconName = 'chat-processing';
+              iconName = 'chat';
               break;
             case 'TreatmentPlan':
               iconName = 'calendar-check';
@@ -65,9 +69,9 @@ export function MainTabNavigator() {
               iconName = 'cog';
               break;
             default:
-              iconName = 'help';
+              iconName = 'help-circle';
           }
-          return <Icon name={iconName} size={24} color={color} />;
+          return <Icon source={iconName} size={24} color={color} />;
         },
       })}
       tabBar={({ navigation, state, descriptors, insets }) => (
@@ -89,7 +93,7 @@ export function MainTabNavigator() {
             let iconName;
             switch (route.name) {
               case 'Chat':
-                iconName = 'chat-processing';
+                iconName = 'chat';
                 break;
               case 'TreatmentPlan':
                 iconName = 'calendar-check';
@@ -104,9 +108,9 @@ export function MainTabNavigator() {
                 iconName = 'cog';
                 break;
               default:
-                iconName = 'help';
+                iconName = 'help-circle';
             }
-            return <Icon name={iconName} size={24} color={color} />;
+            return <Icon source={iconName} size={24} color={color} />;
           }}
           getLabelText={({ route }) => {
             switch (route.name) {

@@ -8,9 +8,9 @@ import {
   ScrollView
 } from 'react-native';
 import Slider from '@react-native-community/slider';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { IconButton } from 'react-native-paper';
 import { useTTS } from '../../hooks/useTTS';
-import { useHuaweiTTS } from '../../hooks/useHuaweiTTS';
+import { useTheme } from '@/theme';
 
 const PREVIEW_TEXT = "这是一段测试文本，用于预览语音播报的效果。调整设置后，您可以点击此按钮试听。";
 
@@ -25,10 +25,8 @@ export const TTSSettingsScreen = () => {
     speak, 
     stop, 
     isSpeaking,
-    isHuaweiEngine
-  } = useTTS();
-  
-  const huaweiTTS = useHuaweiTTS();
+    isHuaweiEngine  } = useTTS();
+  const theme = useTheme();
   
   const [localSettings, setLocalSettings] = useState({
     ...settings
@@ -125,93 +123,89 @@ export const TTSSettingsScreen = () => {
     { title: '用药指导', text: '请在饭后半小时服用一粒降压药，每天三次。' },
     { title: '健康提示', text: '今天的步数目标已完成80%，再走一会儿就能达标了。' }
   ];
-
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Icon name="settings-voice" size={40} color="#2196F3" />
-        <Text style={styles.title}>语音播报设置</Text>
-      </View>
-      
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>基本设置</Text>
+    <ScrollView style={[styles.container, { backgroundColor: theme.backgrounds.gray50.backgroundColor }]}>      <View style={styles.header}>
+        <IconButton icon="cog" size={40} iconColor={theme.colors.primary} />
+        <Text style={[styles.title, { color: theme.fonts.gray800.color }]}>语音播报设置</Text>
+      </View>      
+      <View style={[styles.section, { backgroundColor: theme.backgrounds.gray100.backgroundColor }]}>
+        <Text style={[styles.sectionTitle, { color: theme.fonts.gray800.color }]}>基本设置</Text>
         
-        <View style={styles.settingRow}>
+        <View style={[styles.settingRow, { borderBottomColor: theme.colors.gray200 }]}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>启用语音播报</Text>
-            <Text style={styles.settingDescription}>
+            <Text style={[styles.settingLabel, { color: theme.fonts.gray800.color }]}>启用语音播报</Text>
+            <Text style={[styles.settingDescription, { color: theme.fonts.gray600.color }]}>
               开启后，可以使用语音播报功能
             </Text>
           </View>
           <Switch
-            trackColor={{ false: "#cccccc", true: "#81b0ff" }}
-            thumbColor={localSettings.enabled ? "#2196F3" : "#f4f3f4"}
-            ios_backgroundColor="#cccccc"
+            trackColor={{ false: theme.colors.gray300, true: theme.colors.primaryLight }}
+            thumbColor={localSettings.enabled ? theme.colors.primary : theme.colors.gray400}
+            ios_backgroundColor={theme.colors.gray300}
             onValueChange={handleToggleEnabled}
             value={localSettings.enabled}
             style={styles.switch}
           />
         </View>
         
-        <View style={styles.settingRow}>
+        <View style={[styles.settingRow, { borderBottomColor: theme.colors.gray200 }]}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>自动播报重要提示</Text>
-            <Text style={styles.settingDescription}>
+            <Text style={[styles.settingLabel, { color: theme.fonts.gray800.color }]}>自动播报重要提示</Text>
+            <Text style={[styles.settingDescription, { color: theme.fonts.gray600.color }]}>
               开启后，重要提示会自动语音播报
             </Text>
           </View>
           <Switch
-            trackColor={{ false: "#cccccc", true: "#81b0ff" }}
-            thumbColor={localSettings.autoPlay ? "#2196F3" : "#f4f3f4"}
-            ios_backgroundColor="#cccccc"
+            trackColor={{ false: theme.colors.gray300, true: theme.colors.primaryLight }}
+            thumbColor={localSettings.autoPlay ? theme.colors.primary : theme.colors.gray400}
+            ios_backgroundColor={theme.colors.gray300}
             onValueChange={handleToggleAutoPlay}
             value={localSettings.autoPlay}
             style={styles.switch}
           />
         </View>
-          <View style={styles.settingRow}>
+          <View style={[styles.settingRow, { borderBottomColor: theme.colors.gray200 }]}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>朗读屏幕内容</Text>
-            <Text style={styles.settingDescription}>
+            <Text style={[styles.settingLabel, { color: theme.fonts.gray800.color }]}>朗读屏幕内容</Text>
+            <Text style={[styles.settingDescription, { color: theme.fonts.gray600.color }]}>
               开启后，可朗读当前屏幕上的重要内容
             </Text>
           </View>
           <Switch
-            trackColor={{ false: "#cccccc", true: "#81b0ff" }}
-            thumbColor={localSettings.readScreen ? "#2196F3" : "#f4f3f4"}
-            ios_backgroundColor="#cccccc"
+            trackColor={{ false: theme.colors.gray300, true: theme.colors.primaryLight }}
+            thumbColor={localSettings.readScreen ? theme.colors.primary : theme.colors.gray400}
+            ios_backgroundColor={theme.colors.gray300}
             onValueChange={handleToggleReadScreen}
             value={localSettings.readScreen || false}
             style={styles.switch}
           />
         </View>
-          <View style={styles.settingRow}>
+          <View style={[styles.settingRow, { borderBottomColor: theme.colors.gray200 }]}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>播报页面切换</Text>
-            <Text style={styles.settingDescription}>
+            <Text style={[styles.settingLabel, { color: theme.fonts.gray800.color }]}>播报页面切换</Text>
+            <Text style={[styles.settingDescription, { color: theme.fonts.gray600.color }]}>
               开启后，切换页面时会自动播报当前页面名称
             </Text>
           </View>
           <Switch
-            trackColor={{ false: "#cccccc", true: "#81b0ff" }}
-            thumbColor={localSettings.announceScreen ? "#2196F3" : "#f4f3f4"}
-            ios_backgroundColor="#cccccc"
+            trackColor={{ false: theme.colors.gray300, true: theme.colors.primaryLight }}
+            thumbColor={localSettings.announceScreen ? theme.colors.primary : theme.colors.gray400}
+            ios_backgroundColor={theme.colors.gray300}
             onValueChange={handleToggleAnnounceScreen}
-            value={localSettings.announceScreen}
-            style={styles.switch}
+            value={localSettings.announceScreen}            style={styles.switch}
           />
         </View>
-          <View style={styles.settingRow}>
+          <View style={[styles.settingRow, { borderBottomColor: theme.colors.gray200 }]}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>自动播报AI医生回复</Text>
-            <Text style={styles.settingDescription}>
+            <Text style={[styles.settingLabel, { color: theme.fonts.gray800.color }]}>自动播报AI医生回复</Text>
+            <Text style={[styles.settingDescription, { color: theme.fonts.gray600.color }]}>
               开启后，在对话页面会自动播报AI医生的回复
             </Text>
           </View>
           <Switch
-            trackColor={{ false: "#cccccc", true: "#81b0ff" }}
-            thumbColor={localSettings.autoReadAIResponse ? "#2196F3" : "#f4f3f4"}
-            ios_backgroundColor="#cccccc"
+            trackColor={{ false: theme.colors.gray300, true: theme.colors.primaryLight }}
+            thumbColor={localSettings.autoReadAIResponse ? theme.colors.primary : theme.colors.gray400}
+            ios_backgroundColor={theme.colors.gray300}
             onValueChange={handleToggleAutoReadAIResponse}
             value={localSettings.autoReadAIResponse || false}
             style={styles.switch}
@@ -220,12 +214,12 @@ export const TTSSettingsScreen = () => {
       </View>
       
       {localSettings.enabled && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>语音参数调节</Text>
+        <View style={[styles.section, { backgroundColor: theme.backgrounds.gray100.backgroundColor }]}>
+          <Text style={[styles.sectionTitle, { color: theme.fonts.gray800.color }]}>语音参数调节</Text>
           
           <View style={styles.sliderContainer}>
-            <Text style={styles.sliderLabel}>语速调节</Text>
-            <Text style={styles.sliderValue}>
+            <Text style={[styles.sliderLabel, { color: theme.fonts.gray800.color }]}>语速调节</Text>
+            <Text style={[styles.sliderValue, { color: theme.colors.primary }]}>
               {getSpeedLabel(localSettings.speed)}
             </Text>
             <Slider
@@ -236,21 +230,20 @@ export const TTSSettingsScreen = () => {
               value={localSettings.speed}
               onValueChange={handleSpeedChange}
               onSlidingComplete={handleSpeedChangeComplete}
-              minimumTrackTintColor="#2196F3"
-              maximumTrackTintColor="#d3d3d3"
-              thumbTintColor="#2196F3"
+              minimumTrackTintColor={theme.colors.primary}
+              maximumTrackTintColor={theme.colors.gray300}
+              thumbTintColor={theme.colors.primary}
             />
             <View style={styles.sliderLabels}>
-              <Text style={styles.sliderMinLabel}>慢</Text>
-              <Text style={styles.sliderMaxLabel}>快</Text>
+              <Text style={[styles.sliderMinLabel, { color: theme.fonts.gray600.color }]}>慢</Text>
+              <Text style={[styles.sliderMaxLabel, { color: theme.fonts.gray600.color }]}>快</Text>
             </View>
           </View>
           
           <View style={styles.sliderContainer}>
-            <Text style={styles.sliderLabel}>音量调节</Text>
-            <Text style={styles.sliderValue}>
-              {getVolumeLabel(localSettings.volume)}
-            </Text>
+            <Text style={[styles.sliderLabel, { color: theme.fonts.gray800.color }]}>音量调节</Text>
+            <Text style={[styles.sliderValue, { color: theme.colors.primary }]}>
+              {getVolumeLabel(localSettings.volume)}            </Text>
             <Slider
               style={styles.slider}
               minimumValue={0.1}
@@ -259,50 +252,48 @@ export const TTSSettingsScreen = () => {
               value={localSettings.volume}
               onValueChange={handleVolumeChange}
               onSlidingComplete={handleVolumeChangeComplete}
-              minimumTrackTintColor="#2196F3"
-              maximumTrackTintColor="#d3d3d3"
-              thumbTintColor="#2196F3"
+              minimumTrackTintColor={theme.colors.primary}
+              maximumTrackTintColor={theme.colors.gray300}
+              thumbTintColor={theme.colors.primary}
             />
             <View style={styles.sliderLabels}>
-              <Text style={styles.sliderMinLabel}>小</Text>
-              <Text style={styles.sliderMaxLabel}>大</Text>
+              <Text style={[styles.sliderMinLabel, { color: theme.fonts.gray600.color }]}>小</Text>
+              <Text style={[styles.sliderMaxLabel, { color: theme.fonts.gray600.color }]}>大</Text>
             </View>
           </View>
-          
-          <TouchableOpacity 
+            <TouchableOpacity
             style={[
               styles.previewButton,
-              isSpeaking ? styles.previewButtonActive : null
+              { backgroundColor: theme.colors.primary },
+              isSpeaking ? { backgroundColor: theme.colors.error } : null
             ]}
             onPress={handlePreview}
-          >
-            <Icon 
-              name={isSpeaking ? "stop" : "play-arrow"} 
+          >            <IconButton 
+              icon={isSpeaking ? "stop" : "play"} 
               size={24} 
-              color="#fff" 
-            />
-            <Text style={styles.previewButtonText}>
+              iconColor={theme.colors.white} 
+            />            <Text style={[styles.previewButtonText, { color: theme.colors.white }]}>
               {isSpeaking ? "停止预览" : "试听效果"}
             </Text>
           </TouchableOpacity>
           
-          <Text style={styles.examplesTitle}>实用场景试听</Text>
+          <Text style={[styles.examplesTitle, { color: theme.fonts.gray800.color }]}>实用场景试听</Text>
           <View style={styles.examplesContainer}>
             {previewExamples.map((example, index) => (
               <TouchableOpacity 
                 key={index}
-                style={styles.exampleButton}
+                style={[styles.exampleButton, { backgroundColor: theme.backgrounds.gray100.backgroundColor }]}
                 onPress={() => !isSpeaking && speak(example.text)}
               >
-                <Text style={styles.exampleTitle}>{example.title}</Text>
-                <Icon name="play-circle-outline" size={24} color="#2196F3" />
+                <Text style={[styles.exampleTitle, { color: theme.fonts.gray800.color }]}>{example.title}</Text>
+                <IconButton icon="play-circle-outline" size={24} iconColor={theme.colors.primary} />
               </TouchableOpacity>
             ))}
           </View>
           
-          <View style={styles.infoBox}>
-            <Icon name="info" size={20} color="#2196F3" />
-            <Text style={styles.infoText}>
+          <View style={[styles.infoBox, { backgroundColor: theme.backgrounds.gray100.backgroundColor }]}>
+            <IconButton icon="information" size={20} iconColor={theme.colors.primary} />
+            <Text style={[styles.infoText, { color: theme.fonts.gray700.color }]}>
               {isHuaweiEngine 
                 ? "当前使用华为语音引擎为您提供服务" 
                 : "当前使用标准语音引擎为您提供服务"}
@@ -317,7 +308,6 @@ export const TTSSettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     padding: 16,
   },
   header: {
@@ -329,14 +319,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 12,
-    color: '#333',
   },
   section: {
-    marginBottom: 24,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    marginBottom: 24,    borderRadius: 8,
     padding: 16,
-    shadowColor: "#000",
+    shadowColor: "#000", // 阴影颜色保持不变，通常不需要主题适配
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -346,7 +333,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: '#333',
   },
   settingRow: {
     flexDirection: 'row',
@@ -355,7 +341,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   settingInfo: {
     flex: 1,
@@ -364,11 +349,9 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
   },
   settingDescription: {
     fontSize: 14,
-    color: '#666',
     marginTop: 4,
   },
   switch: {
@@ -380,12 +363,10 @@ const styles = StyleSheet.create({
   sliderLabel: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 4,
   },
   sliderValue: {
     fontSize: 16,
-    color: '#2196F3',
     textAlign: 'right',
   },
   slider: {
@@ -397,15 +378,12 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   sliderMinLabel: {
-    color: '#666',
     fontSize: 14,
   },
   sliderMaxLabel: {
-    color: '#666',
     fontSize: 14,
   },
   previewButton: {
-    backgroundColor: '#2196F3',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -414,10 +392,9 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   previewButtonActive: {
-    backgroundColor: '#f44336',
-  },
-  previewButtonText: {
-    color: '#fff',
+    // Will be overridden by inline styles
+  },  previewButtonText: {
+    // color will be set by inline styles
     fontWeight: 'bold',
     fontSize: 18,
     marginLeft: 8,
@@ -425,7 +402,6 @@ const styles = StyleSheet.create({
   examplesTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
     marginTop: 16,
     marginBottom: 8,
   },
@@ -436,25 +412,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#e3f2fd',
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
   },
   exampleTitle: {
     fontSize: 16,
-    color: '#333',
     flex: 1,
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   infoText: {
-    color: '#555',
     fontSize: 14,
     marginLeft: 8,
     flex: 1,

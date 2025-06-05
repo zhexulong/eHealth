@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { useTTS } from '@/hooks/useTTS';
 import { ElderlyTTSControl } from '@/components/atoms/ElderlyTTSControl';
+import { useTheme } from '@/theme';
 
 interface VoiceAnnouncementProps {
   /**
@@ -47,6 +48,7 @@ export const VoiceAnnouncement: React.FC<VoiceAnnouncementProps> = ({
   titleStyle,
   messageStyle
 }) => {
+  const { colors } = useTheme();
   const { speak, settings } = useTTS();
   
   // 根据重要程度自动播放
@@ -59,29 +61,28 @@ export const VoiceAnnouncement: React.FC<VoiceAnnouncementProps> = ({
       }
     }
   }, [title, message, importance, autoPlay, settings.enabled, settings.autoPlay, speak]);
-  
-  // 根据重要程度选择不同的样式
+    // 根据重要程度选择不同的样式
   const getContainerStyle = () => {
     switch (importance) {
       case 'important':
-        return styles.importantContainer;
+        return { backgroundColor: colors.warning + '20', borderLeftColor: colors.warning };
       case 'critical':
-        return styles.criticalContainer;
+        return { backgroundColor: colors.error + '20', borderLeftColor: colors.error };
       case 'normal':
       default:
-        return styles.normalContainer;
+        return { backgroundColor: colors.info + '20', borderLeftColor: colors.info };
     }
   };
   
   const getTitleStyle = () => {
     switch (importance) {
       case 'important':
-        return styles.importantTitle;
+        return { color: colors.warning };
       case 'critical':
-        return styles.criticalTitle;
+        return { color: colors.error };
       case 'normal':
       default:
-        return styles.normalTitle;
+        return { color: colors.info };
     }
   };
   
@@ -93,9 +94,8 @@ export const VoiceAnnouncement: React.FC<VoiceAnnouncementProps> = ({
           text={`${title}。${message}`}
           label="朗读"
           size="small"
-        />
-      </View>
-      <Text style={[styles.message, messageStyle]}>{message}</Text>
+        />      </View>
+      <Text style={[styles.message, { color: colors.gray800 }, messageStyle]}>{message}</Text>
     </View>
   );
 };
@@ -121,27 +121,5 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 16,
     lineHeight: 22,
-    color: '#333',
-  },
-  normalContainer: {
-    backgroundColor: '#f0f7ff',
-    borderLeftColor: '#2196F3',
-  },
-  importantContainer: {
-    backgroundColor: '#fff9e6',
-    borderLeftColor: '#FFA000',
-  },
-  criticalContainer: {
-    backgroundColor: '#fee',
-    borderLeftColor: '#D32F2F',
-  },
-  normalTitle: {
-    color: '#0D47A1',
-  },
-  importantTitle: {
-    color: '#E65100',
-  },
-  criticalTitle: {
-    color: '#B71C1C',
   }
 });

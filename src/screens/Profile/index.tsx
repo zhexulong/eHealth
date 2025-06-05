@@ -37,7 +37,7 @@ export function ProfileScreen() {  const { layout, gutters } = useTheme();
   const [points, setPoints] = useState(150);
 
   // 准备用于朗读的屏幕内容
-  const screenContent = '我的页面，包含个人病历、健康成就和积分兑换功能。';
+  const screenContent = '我的页面，包含个人病历、健康成就功能。';
 
   const handleExchange = (item: RewardItem) => {
     if (points >= item.points && item.stock > 0) {
@@ -71,7 +71,7 @@ export function ProfileScreen() {  const { layout, gutters } = useTheme();
           </View>
         </View>
 
-        <View style={gutters.padding_16}>
+        {/* <View style={gutters.padding_16}>
           <Text variant="headlineMedium" style={gutters.marginBottom_16}>积分兑换</Text>
           <Text variant="titleLarge" style={gutters.marginBottom_16}>当前积分：{points}</Text>
           <View style={[layout.row, layout.wrap, { gap: 16 }]}>
@@ -100,7 +100,7 @@ export function ProfileScreen() {  const { layout, gutters } = useTheme();
               </Card>
             ))}
           </View>
-        </View>
+        </View> */}
 
         {/* 添加页面适配器 */}
         <TTSPageAdapter screenName="我的" screenContent={screenContent} />

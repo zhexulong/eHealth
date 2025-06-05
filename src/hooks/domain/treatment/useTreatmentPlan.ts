@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { notificationService } from '@/services/notification';
+import { calculateProgress } from './calculateProgress';
 
 export interface MedicationPlan {
   id: string;
@@ -39,11 +40,27 @@ const initialTreatmentPlans: MedicationPlan[] = [
 
 export function useTreatmentPlan() {
   const [plans, setPlans] = useState<MedicationPlan[]>(initialTreatmentPlans);
+  const [progress, setProgress] = useState(() => calculateProgress(plans));
+  const [visible, setVisible] = useState(false);
+  const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
+
+  // 更新进度的函数
+  const updateProgress = useCallback(() => {
+    setProgress(calculateProgress(plans));
+  }, [plans]);
 
   useEffect(() => {
+    // 初始化进度
+    updateProgress();
+
     // 设置定时检查
     const checkInterval = setInterval(() => {
       const now = new Date();
+      
+      // 更新进度
+      updateProgress();
+
+      // 检查提醒
       plans.forEach(plan => {
         if (!plan.completed) {
           const [hours, minutes] = plan.time.split(' ')[1].split(':');
@@ -68,11 +85,7 @@ export function useTreatmentPlan() {
     return () => {
       clearInterval(checkInterval);
     };
-  }, [plans]);
-
-  const [progress, setProgress] = useState(50);
-  const [visible, setVisible] = useState(false);
-  const [selectedPlanIndex, setSelectedPlanIndex] = useState<number | null>(null);
+  }, [plans, updateProgress]);
 
   const handleCardPress = (index: number) => {
     setSelectedPlanIndex(index);
@@ -91,14 +104,14 @@ export function useTreatmentPlan() {
       return newPlans;
     });
 
-    setProgress(prev => Math.min(prev + 10, 100));
+    // 进度会通过 useEffect 自动更新
     setVisible(false);
-    setSelectedPlanIndex(null); // Reset selected index after upload
+    setSelectedPlanIndex(null);
   };
 
   const handleDismissDialog = () => {
     setVisible(false);
-    setSelectedPlanIndex(null); // Reset selected index on dismiss
+    setSelectedPlanIndex(null);
   };
 
   const rewardEggs = Math.floor(progress / 20); // 每20%进度可以兑换一个鸡蛋

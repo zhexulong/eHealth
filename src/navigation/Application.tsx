@@ -8,17 +8,24 @@ import { Paths } from './paths';
 import type { RootStackParamList } from './types';
 // 导入NavigationAnnouncerWrapper组件，替代直接使用hook
 import { NavigationAnnouncerWrapper } from '@/components/molecules/NavigationAnnouncerWrapper';
+import { useTheme } from '@/theme';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 export function ApplicationNavigator() {
+  const { navigationTheme } = useTheme();
+  
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       {/* 在NavigationContainer内部使用NavigationAnnouncerWrapper组件 */}
       <NavigationAnnouncerWrapper>
         <Stack.Navigator 
           screenOptions={{
             headerShown: true,
+            headerStyle: {
+              backgroundColor: navigationTheme.colors.card,
+            },
+            headerTintColor: navigationTheme.colors.text,
           }}
           initialRouteName={Paths.Startup}
         >
@@ -33,7 +40,11 @@ export function ApplicationNavigator() {
             name={Paths.TTSSettings}
             component={TTSSettingsScreen}
             options={{
-              title: '语音设置'
+              title: '语音设置',
+              headerStyle: {
+                backgroundColor: navigationTheme.colors.card,
+              },
+              headerTintColor: navigationTheme.colors.text,
             }}
           />
         </Stack.Navigator>

@@ -5,7 +5,9 @@ import {
   View,
   Text
 } from 'react-native';
+import { Icon } from 'react-native-paper';
 import { useTTS } from '@/hooks/useTTS';
+import { useTheme } from '@/theme';
 
 interface TTSScreenReaderProps {
   screenText: string;
@@ -20,6 +22,7 @@ export const TTSScreenReader: React.FC<TTSScreenReaderProps> = ({
   screenText,
   importantMessage
 }) => {
+  const { colors } = useTheme();
   const { speak, stop, isSpeaking, settings } = useTTS();
   const lastPressTime = useRef<number>(0);
   const lastContent = useRef<string>('');
@@ -61,17 +64,15 @@ export const TTSScreenReader: React.FC<TTSScreenReaderProps> = ({
   if (!settings.readScreen && !importantMessage) return null;
   if (!settings.readScreen) return null;
 
-  return (
-    <View style={styles.container}>
+  return (    <View style={styles.container}>
       <TouchableOpacity
-        style={[styles.button, isSpeaking && styles.activeButton]}
-        onPress={handlePress}
-        accessibilityLabel={isSpeaking ? "停止朗读" : "朗读屏幕内容"}
-      >        {/* 使用文本代替图标 */}
-        <Text style={[styles.iconText, { color: 'white' }]}>
-          {isSpeaking ? '🔊' : '🔉'}
-        </Text>
-        <Text style={styles.buttonText}>
+        style={[styles.button, { backgroundColor: colors.primary + 'CC' }, isSpeaking && { backgroundColor: colors.error + 'CC' }]}
+        onPress={handlePress}        accessibilityLabel={isSpeaking ? "停止朗读" : "朗读屏幕内容"}      >        {/* 使用react-native-paper图标 */}        <Icon 
+          source={isSpeaking ? "stop" : "text-to-speech"} 
+          size={28} 
+          color={colors.white} 
+        />
+        <Text style={[styles.buttonText, { color: colors.white }]}>
           {isSpeaking ? "停止朗读" : "朗读内容"}
         </Text>
       </TouchableOpacity>
@@ -85,28 +86,21 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     zIndex: 999,
-  },
-  button: {
-    backgroundColor: 'rgba(33, 150, 243, 0.8)',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  },  button: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderRadius: 30,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: "#000",
+    shadowColor: "#000", // 阴影颜色保持不变，通常不需要主题适配
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  activeButton: {
-    backgroundColor: 'rgba(244, 67, 54, 0.8)',
-  },
-  buttonText: {
-    color: 'white',
+  },  buttonText: {
     fontWeight: 'bold',
-    fontSize: 16,
-    marginLeft: 6,
+    fontSize: 20,
+    marginLeft: 8,
   },
   iconText: {
     fontSize: 18,

@@ -33,6 +33,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
+          ./gradlew assembleRelease
           ./gradlew bundleRelease
 
       - name: Generate Release Notes

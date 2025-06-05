@@ -8,15 +8,15 @@ export const enum Variant {
 
 const colorsLight = {
   // 主色调
-  primary: '#2196F3',     // 医疗蓝，用于主要按钮和重要信息
-  primaryLight: '#64B5F6', // 浅蓝色，用于次要信息
-  primaryDark: '#1976D2',  // 深蓝色，用于标题和重点
+  primary: '#B39DDB',     // 淡紫色，用于主要按钮和重要信息
+  primaryLight: '#D1C4E9', // 更浅的紫色，用于次要信息
+  primaryDark: '#9575CD',  // 深紫色，用于标题和重点
   
   // 功能色
   success: '#4CAF50',     // 绿色，用于成功状态
   warning: '#FFC107',     // 黄色，用于警告信息
   error: '#F44336',       // 红色，用于错误信息
-  info: '#2196F3',        // 蓝色，用于提示信息
+  info: '#B39DDB',        // 淡紫色，用于提示信息
   
   // 中性色
   gray50: '#FAFAFA',      // 背景色
@@ -39,15 +39,15 @@ const colorsLight = {
 
 const colorsDark = {
   // 主色调（暗色模式）
-  primary: '#90CAF9',     
-  primaryLight: '#BBDEFB',
-  primaryDark: '#64B5F6',
+  primary: '#CE93D8',     
+  primaryLight: '#E1BEE7',
+  primaryDark: '#BA68C8',
   
   // 功能色（暗色模式）
   success: '#81C784',
   warning: '#FFD54F',
   error: '#E57373',
-  info: '#64B5F6',
+  info: '#CE93D8',
   
   // 中性色（暗色模式）
   gray50: '#121212',

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Icon } from 'react-native-paper';
 import { useTTS } from '../../hooks/useTTS';
+import { useTheme } from '@/theme';
 
 interface ElderlyTTSControlProps {
   text: string;
@@ -22,6 +23,7 @@ export const ElderlyTTSControl: React.FC<ElderlyTTSControlProps> = ({
   autoPlay = false,
   onPlayStateChange
 }) => {
+  const { colors } = useTheme();
   const { speak, stop, isSpeaking, engineReady, settings } = useTTS();
   const [showHint, setShowHint] = useState(true);
 
@@ -94,35 +96,33 @@ export const ElderlyTTSControl: React.FC<ElderlyTTSControlProps> = ({
   }
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity 
+    <View style={styles.container}>      <TouchableOpacity 
         onPress={handlePress}
         style={[
           styles.button, 
+          { backgroundColor: isSpeaking ? colors.error : colors.primaryLight },
           sizeStyles.button,
-          isSpeaking ? styles.buttonActive : null
         ]}
         accessibilityLabel={isSpeaking ? "停止朗读" : label}
         accessibilityHint="按下可控制文字朗读功能"
-        accessibilityRole="button"
-      >
+        accessibilityRole="button"      >
         <Icon 
-          name={isSpeaking ? "stop" : "volume-up"} 
+          source={isSpeaking ? "stop" : "text-to-speech"} 
           size={sizeStyles.icon} 
-          color={isSpeaking ? "#FFFFFF" : "#2196F3"} 
+          color={isSpeaking ? colors.white : colors.primaryDark} 
         />
         <Text style={[
           styles.label, 
+          { color: isSpeaking ? colors.white : colors.primaryDark },
           sizeStyles.text,
-          isSpeaking ? styles.labelActive : null
+          { marginLeft: 8 }
         ]}>
           {isSpeaking ? "停止朗读" : label}
         </Text>
       </TouchableOpacity>
-      
-      {showHint && (
-        <View style={styles.hint}>
-          <Text style={styles.hintText}>
+        {showHint && (
+        <View style={[styles.hint, { backgroundColor: colors.primary + '1A' }]}>
+          <Text style={[styles.hintText, { color: colors.gray700 }]}>
             {isSpeaking ? "正在为您朗读内容" : "点击此按钮可以朗读文字内容"}
           </Text>
         </View>
@@ -141,29 +141,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderRadius: 8,
-    backgroundColor: '#F0F8FF',
     minWidth: 200,
     justifyContent: 'center',
     elevation: 2,
-    shadowColor: "#000",
+    shadowColor: "#000", // 阴影颜色保持不变，通常不需要主题适配
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  buttonActive: {
-    backgroundColor: '#2196F3',
-  },
   label: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginLeft: 12,
-    color: '#2196F3',
-  },
-  labelActive: {
-    color: '#FFFFFF',
+    marginLeft: 8,
   },
   hint: {
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
     padding: 12,
     marginTop: 8,
     borderRadius: 8,
@@ -171,6 +162,5 @@ const styles = StyleSheet.create({
   },
   hintText: {
     fontSize: 16,
-    color: '#555',
   }
 });

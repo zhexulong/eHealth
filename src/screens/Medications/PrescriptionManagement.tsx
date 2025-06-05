@@ -1,32 +1,33 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Surface, Text, Card, List, FAB, useTheme } from 'react-native-paper';
+import { Surface, Card, List, FAB } from 'react-native-paper';
 import { withRoleAccess } from '@/components/molecules/WithRoleAccess';
+import { SafeScreen } from '@/components/templates';
 
 function PrescriptionManagementScreen() {
-  const theme = useTheme();
-
   return (
-    <Surface style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Title title="处方管理" subtitle="此页面仅医生可见" />
-        <Card.Content>
-          <List.Section>
-            <List.Subheader>当前处方列表</List.Subheader>
-            <List.Item
-              title="暂无处方记录"
-              left={props => <List.Icon {...props} icon="file-document-outline" />}
-            />
-          </List.Section>
-        </Card.Content>
-      </Card>
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={() => {}}
-        label="新增处方"
-      />
-    </Surface>
+    <SafeScreen>
+      <Surface style={styles.container}>
+        <Card style={styles.card}>
+          <Card.Title title="处方管理" subtitle="此页面仅医生可见" />
+          <Card.Content>
+            <List.Section>
+              <List.Subheader>当前处方列表</List.Subheader>
+              <List.Item
+                title="暂无处方记录"
+                left={props => <List.Icon {...props} icon="file-document-outline" />}
+              />
+            </List.Section>
+          </Card.Content>
+        </Card>
+        <FAB
+          icon="plus"
+          style={styles.fab}
+          onPress={() => {}}
+          label="新增处方"
+        />
+      </Surface>
+    </SafeScreen>
   );
 }
 

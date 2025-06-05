@@ -27,7 +27,7 @@ function SkeletonLoader({
   width = '100%',
   ...props
 }: Props) {
-  const { backgrounds, borders } = useTheme();
+  const { colors, borders } = useTheme();
 
   const opacity = useSharedValue(FROM);
 
@@ -51,7 +51,7 @@ function SkeletonLoader({
         <Animated.View
           style={[
             animatedStyles,
-            backgrounds.skeleton,
+            { backgroundColor: colors.gray300 },
             borders.rounded_4,
             {
               height,

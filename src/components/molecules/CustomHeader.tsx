@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import { useTheme } from '@/theme';
 import { HeaderTTSButton } from './HeaderTTSButton';
 
 interface CustomHeaderProps {
@@ -9,11 +10,11 @@ interface CustomHeaderProps {
 }
 
 export const CustomHeader: React.FC<CustomHeaderProps> = ({ title, screenText }) => {
-  const theme = useTheme();
+  const { colors } = useTheme();
   
   return (
     <View style={styles.headerContainer}>
-      <Text style={{ color: theme.colors.onSurface, fontSize: 30, fontWeight: 'bold' }}>
+      <Text style={{ color: colors.gray900, fontSize: 30, fontWeight: 'bold' }}>
         {title}
       </Text>
       <HeaderTTSButton screenText={screenText} />
